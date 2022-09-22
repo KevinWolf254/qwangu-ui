@@ -1,0 +1,235 @@
+<section id="occupations">
+  <div class="container">
+    <!-- create -->
+    <div class="d-flex flex-row-reverse my-2">
+      <button type="button" class="btn btn-primary" (click)="openCreate(createModal)">
+        <i class="bi bi-person-plus-fill"></i> Create
+      </button>
+    </div>
+    <!-- list -->
+    <div class="card">
+      <div class="card-body">
+        <form autocomplete="off" [formGroup]="form">
+          <div class="d-flex justify-content-between">
+            <!-- page size -->
+            <div class="row flex-fill mb-3">
+              <label for="selectPageSize" class="col-xl-3 col-form-label">Show</label>
+              <div class="col-xl-9">
+                <select id="selectPageSize" class="form-select" aria-label="Select page size" style="width: 5rem;"
+                  formControlName="pageSize">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+            </div>
+            <!-- search -->
+            <div class="row flex-fill mb-3">
+              <label for="search" class="col-xl-2 col-form-label">Search</label>
+              <div id="search" class="col-xl-10">
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <!-- <label for="isActive" class="form-label">Active</label> -->
+                      <select id="isActive" class="form-select" formControlName="isActive" aria-label="choose active state">
+                        <option value="">-- Choose Active State --</option>
+                        <option value="1">TRUE</option>
+                        <option value="2">FALSE</option>
+                      </select>
+                    </div>
+                    <div class="col-6">
+                      <!-- <label for="occupationId" class="form-label">Occupation</label> -->
+                      <select id="occupationId" class="form-select" formControlName="occupationId" aria-label="choose occupation">
+                        <option value="">-- Choose Occupation --</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                      </select>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <!-- users table -->
+          <div class="table-responsive">
+            <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Active</th>
+                  <th scope="col">Occupation</th>
+                  <th scope="col">Vacating On</th>
+                  <th scope="col">Notified On</th>
+                  <th scope="col">Created On</th>
+                  <th scope="col">Modified On</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngIf="!isLoading else loading;">
+                  <ng-container *ngIf="notices.length > 0 else noUsers;">
+                    <!-- <tr *ngFor="let user of users | paginate: { itemsPerPage: PAGE_SIZE, currentPage: PAGE } let i = index;"> -->
+                    <tr *ngFor="let notice of notices; let i = index;">
+                      <td>{{ i + 1 }}.</td>
+                      <td>
+                        <span *ngIf="notice?.isActive; else noData;">
+                          {{ notice?.isActive }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="notice?.occupationId; else noData;">
+                          {{ notice?.occupationId | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="notice?.vacatingOn; else noData;">
+                          {{ notice?.vacatingOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="notice?.notifiedOn; else noData;">
+                          {{ notice?.notifiedOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="notice?.createdOn; else noData;">
+                          {{ notice?.createdOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="notice?.modifiedOn; else noData;">
+                          {{ notice?.modifiedOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center justify-content-between">
+                          <!-- edit -->
+                          <button type="button" class="btn btn-action btn-outline-info" (click)="openEdit(notice.id, updateModal)">
+                            <i class="bi bi-pencil-square"></i>
+                          </button>
+                          <!-- delete -->
+                          <button type="button" class="btn btn-action btn-outline-danger" (click)="openDelete(notice.id, deleteModal)">
+                            <i class="bi bi-trash-fill"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<ng-template #noData>
+  ---
+</ng-template>
+
+<ng-template #noUsers>
+  <tr>
+    <td colspan="11">
+      <span style="font-style: italic; padding: 0.25rem 0.25rem; color: red;">
+        No occupations have been found.
+      </span>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #loading>
+  <tr>
+    <td colspan="11">
+      <div class="lds-roller" style="position: relative; left: 50%;">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #createModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Notice create</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="createForm" (ngSubmit)="create(createForm)">
+      <div class="row">
+        <div class="col-12 mb-2">
+          <label for="occupationId" class="form-label">Occupation</label>
+          <select id="occupationId" class="form-select" formControlName="occupationId" aria-label="choose occupation">
+            <option value="">-- Choose Occupation --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+        <div class="col-12 mb-2">
+          <label for="vacatingOn" class="form-label">Vacating On</label>
+          <input formControlName="vacatingOn" type="text" class="form-control" id="vacatingOn" placeholder="Enter vacating date">
+        </div>
+        <div class="col-12 mb-2">
+          <label for="notifiedOn" class="form-label">Notified On</label>
+          <input formControlName="notifiedOn" type="text" class="form-control" id="notifiedOn" placeholder="Enter notofication date">
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Create</button>
+  </div>
+</ng-template>
+
+<ng-template #updateModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Notice update</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="updateForm" (ngSubmit)="update(updateForm)">
+      <div class="row">
+        <div class="col-12 mb-2">
+          <label for="id" class="form-label">Notice ID</label>
+          <input formControlName="id" type="text" class="form-control" id="id" placeholder="Enter notice id">
+        </div>
+        <div class="col-12 my-4">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="isActive" formControlName="isActive">
+            <label class="form-check-label" for="isActive">Active</label>
+          </div>
+        </div>
+        <div class="col-12 mb-2">
+          <label for="vacatingOn" class="form-label">Vacating On</label>
+          <input formControlName="vacatingOn" type="text" class="form-control" id="vacatingOn" placeholder="Enter vacating date">
+        </div>
+        <div class="col-12 mb-2">
+          <label for="notifiedOn" class="form-label">Notified On</label>
+          <input formControlName="notifiedOn" type="text" class="form-control" id="notifiedOn" placeholder="Enter notofication date">
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
+  </div>
+</ng-template>
+
+<ng-template #deleteModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Notice delete</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete {{deleteNotice}}?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
+  </div>
+</ng-template>

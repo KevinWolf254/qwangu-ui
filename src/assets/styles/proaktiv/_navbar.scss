@@ -1,0 +1,110 @@
+// Navbar
+//
+// Provide a static navbar from which we expand to create full-width, fixed, and
+// other navbar variations.
+
+.navbar {
+  transition: background .8s ease;
+  -webkit-transition: background .8s ease;
+
+  &.navbar-opaque {
+    background: $f_gray;
+  }
+
+  &:not(.navbar-opaque) {
+    background: transparent;
+  }
+}
+
+// Navbar brand
+//
+// Used for brand, project, or site names.
+
+.navbar-brand {
+  .navbar-brand-img {
+    height: 35px;
+  }
+
+  .navbar-brand-text {
+    font-size: 1.9rem;
+    padding-left: 1rem;
+    font-family: $font-family-antic;
+    letter-spacing: .1rem;
+    color: $f_light_beige;
+  }
+}
+
+.navbar-nav {
+
+  .nav-link {
+    font-family: $font-family-antic;
+    font-size: 1.2rem;
+  }
+}
+
+// Button for toggling the navbar when in its collapsed state
+.navbar-toggler {
+  border: none;
+
+  span {
+    width: 25px;
+    margin: 5px;
+    display: block;
+    height: 2px;
+    background: $f_light_blue;
+    transition: all 0.2s;
+    -webkit-transition: all 0.2s;
+  }
+
+  span:nth-of-type(2) {
+    width: 20px;
+  }
+
+  &.active {
+
+    span:first-of-type {
+      -webkit-transform: rotate(45deg) translate(10px);
+      transform: rotate(45deg) translate(10px);
+    }
+
+    span:nth-of-type(2) {
+      opacity: 0;
+    }
+
+    span:last-of-type {
+      -webkit-transform: rotate(-45deg) translate(10px);
+      transform: rotate(-45deg) translate(10px);
+    }
+  }
+
+  &:focus {
+    box-shadow: none;
+  }
+}
+
+// Generate series of `.navbar-expand-*` responsive classes for configuring
+// where your navbar collapses.
+.navbar-expand {
+  @each $breakpoint in map-keys($grid-breakpoints) {
+    $next: breakpoint-next($breakpoint, $grid-breakpoints);
+    $infix: breakpoint-infix($next, $grid-breakpoints);
+
+    // stylelint-disable-next-line scss/selector-no-union-class-name
+    &#{$infix} {
+      @include media-breakpoint-up($next) {
+
+        .navbar-nav {
+
+          .nav-link {
+            padding-right: 1.8rem;
+          }
+        }
+
+        .navbar-collapse {
+          display: contents !important;
+        }
+
+      }
+    }
+  }
+}

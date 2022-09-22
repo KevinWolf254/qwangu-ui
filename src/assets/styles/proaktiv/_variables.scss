@@ -1,0 +1,41 @@
+// /***** color variables *****/
+$f_blue: #116466;
+$f_light_blue: #D1E8E2;
+$f_beige: #D9B08C;
+$f_light_beige: #FFCB9A;
+$f_gray: #2C3531;
+
+// $colors: (
+//   "f_blue": $f_blue,
+//   "f_light_blue": $f_light_blue,
+//   "f_beige": $f_beige,
+//   "f_light_beige": $f_light_beige,
+//   "f_gray": $f_gray
+//   ) !important;
+
+// /***** Navbar ****/
+// $navbar-dark-color:                 $f_light_blue !important;
+// $navbar-dark-hover-color:           $f_light_beige !important;
+// $navbar-dark-active-color:          $f_light_blue !important;
+// $navbar-dark-disabled-color:        rgba($f_light_blue, .25) !important;
+// $navbar-dark-toggler-border-color:  $f_light_blue !important;
+
+// $navbar-light-color:                $f_blue !important;
+// $navbar-light-hover-color:          $f_beige !important;
+// $navbar-light-active-color:         $f_blue !important;
+// $navbar-light-disabled-color:       rgba($f_blue, .3) !important;
+// $navbar-light-toggler-border-color: $f_blue !important;
+
+// $navbar-light-brand-color:                $f_blue !important;
+// $navbar-light-brand-hover-color:          $f_beige !important;
+
+// $navbar-dark-brand-color:                 $f_light_blue !important;
+// $navbar-dark-brand-hover-color:           $f_light_blue !important;
+
+// // Allows for customizing button radius independently from global border radius
+$btn-border-radius:           2rem !important;
+// // $btn-border-radius-sm:        .55rem !important;
+// // $btn-border-radius-lg:        .65rem !important;
+
+$btn-padding-y:               .75rem;
+$btn-padding-x:               2.75rem;

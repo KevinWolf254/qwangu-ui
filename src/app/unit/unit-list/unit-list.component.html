@@ -1,0 +1,324 @@
+<section id="units">
+  <div class="container">
+    <!-- create -->
+    <div class="d-flex flex-row-reverse my-2">
+      <button type="button" class="btn btn-primary" (click)="openCreate(createModal)">
+        <i class="bi bi-person-plus-fill"></i> Create
+      </button>
+    </div>
+    <!-- list -->
+    <div class="card">
+      <div class="card-body">
+        <form autocomplete="off" [formGroup]="form">
+          <div class="d-flex justify-content-between">
+            <!-- page size -->
+            <div class="row flex-fill mb-3">
+              <label for="selectPageSize" class="col-sm-5 col-md-3 col-form-label">Show</label>
+              <div class="col-sm-7 col-md-9">
+                <select id="selectPageSize" class="form-select" aria-label="Select page size" style="width: 5rem;"
+                  formControlName="pageSize">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+            </div>
+            <!-- search -->
+            <div class="row flex-fill mb-3">
+              <label for="search" class="col-sm-3 col-md-2 col-form-label">Search</label>
+              <div class="col-sm-9 col-md-10">
+                <input id="search" class="form-control" type="text" placeholder="Enter unit identifier"
+                  aria-label="unit identifier" formControlName="name">
+              </div>
+            </div>
+          </div>
+          <!-- users table -->
+          <div class="table-responsive">
+            <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Identifier</th>
+                  <th scope="col">FloorNo</th>
+                  <th scope="col">Bedrooms</th>
+                  <th scope="col">Bathrooms</th>
+                  <th scope="col">Advance</th>
+                  <th scope="col">Rent</th>
+                  <th scope="col">Garbage</th>
+                  <th scope="col">Apartment</th>
+                  <th scope="col">Created On</th>
+                  <th scope="col">Modified On</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngIf="!isLoading else loading;">
+                  <ng-container *ngIf="units.length > 0 else noApartments;">
+                    <tr *ngFor="let unit of units; let i = index;">
+                      <td>{{ i + 1 }}.</td>
+                      <td>
+                        <span *ngIf="unit?.status; else noData;">
+                          {{ unit?.status| titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="unit?.type; else noData;">
+                          {{ unit?.type| titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="unit?.identifier; else noData;">
+                          {{ unit?.identifier| titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="unit?.floorNo != null && unit?.floorNo != undefined; else noData;">
+                          {{ unit?.floorNo }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="unit?.noOfBedrooms != null && unit?.noOfBedrooms != undefined; else noData;">
+                          {{ unit?.noOfBedrooms }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="unit?.noOfBathrooms != null && unit?.noOfBathrooms != undefined; else noData;">
+                          {{ unit?.noOfBathrooms }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="unit?.advanceInMonths != null && unit?.advanceInMonths != undefined; else noData;">
+                          {{ unit?.advanceInMonths }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="unit?.rentPerMonth != null && unit?.rentPerMonth != undefined; else noData;">
+                          {{ unit?.currency| titlecase }} {{ unit?.rentPerMonth }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="unit?.garbagePerMonth; else noData;">
+                          {{ unit?.currency| titlecase }} {{ unit?.garbagePerMonth }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="unit?.apartmentId; else noData;">
+                          {{ unit?.apartmentId }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="unit?.createdOn; else noData;">
+                          {{ unit?.createdOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="unit?.modifiedOn; else noData;">
+                          {{ unit?.modifiedOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center justify-content-between">
+                          <!-- edit -->
+                          <button type="button" class="btn btn-action btn-outline-info"
+                            (click)="openEdit(unit.id, updateModal)">
+                            <i class="bi bi-pencil-square"></i>
+                          </button>
+                          <!-- delete -->
+                          <button type="button" class="btn btn-action btn-outline-danger"
+                            (click)="openDelete(unit.id, deleteModal)">
+                            <i class="bi bi-trash-fill"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<ng-template #noData>
+  ---
+</ng-template>
+
+<ng-template #noApartments>
+  <tr>
+    <td colspan="11">
+      <span style="font-style: italic; padding: 0.25rem 0.25rem; color: red;">
+        No apartments have been found.
+      </span>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #loading>
+  <tr>
+    <td colspan="11">
+      <div class="lds-roller" style="position: relative; left: 50%;">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #createModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Unit create</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="createForm" (ngSubmit)="create(createForm)">
+      <div class="row">
+        <div class="mb-3 col-12">
+          <label for="apartmentId" class="form-label">Apartment</label>
+          <select id="apartmentId" class="form-select" formControlName="apartmentId" aria-label="choose apartment">
+            <option value="">-- Choose Apartment --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+        <div class="mb-3 col-6">
+          <label for="type" class="form-label">Type</label>
+          <input formControlName="type" type="text" class="form-control" id="type" placeholder="Enter unit type">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="identifier" class="form-label">Identifier</label>
+          <input formControlName="identifier" type="text" class="form-control" id="identifier" placeholder="Enter identifier">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="floorNo" class="form-label">FloorNo</label>
+          <input formControlName="floorNo" type="text" class="form-control" id="floorNo" placeholder="Enter floorNo">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="noOfBedrooms" class="form-label">Bedrooms</label>
+          <input formControlName="noOfBedrooms" type="text" class="form-control" id="noOfBedrooms" placeholder="Enter no of bedrooms">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="noOfBathrooms" class="form-label">Bathrooms</label>
+          <input formControlName="noOfBathrooms" type="text" class="form-control" id="noOfBathrooms" placeholder="Enter no of bathrooms">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="advanceInMonths" class="form-label">Advance in months</label>
+          <input formControlName="advanceInMonths" type="text" class="form-control" id="advanceInMonths" placeholder="Enter advance in months">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="currency" class="form-label">Currency</label>
+          <input formControlName="currency" type="text" class="form-control" id="currency" placeholder="Enter currency">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="rentPerMonth" class="form-label">Rent</label>
+          <input formControlName="rentPerMonth" type="text" class="form-control" id="rentPerMonth" placeholder="Enter rent per month">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="garbagePerMonth" class="form-label">Garbage</label>
+          <input formControlName="garbagePerMonth" type="text" class="form-control" id="garbagePerMonth" placeholder="Enter garbage per month">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="securityPerMonth" class="form-label">Security</label>
+          <input formControlName="securityPerMonth" type="text" class="form-control" id="securityPerMonth" placeholder="Enter security per month">
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Create</button>
+  </div>
+</ng-template>
+
+<ng-template #updateModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Unit update</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="updateForm" (ngSubmit)="update(updateForm)">
+      <div class="row">
+        <div class="mb-3 col-12">
+          <label for="id" class="form-label">Unit ID</label>
+          <input formControlName="id" type="text" class="form-control" id="id" placeholder="Enter unit id">
+        </div>
+        <div class="mb-3 col-12">
+          <label for="apartmentId" class="form-label">Apartment</label>
+          <select id="apartmentId" class="form-select" formControlName="apartmentId" aria-label="choose apartment">
+            <option value="">-- Choose Apartment --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+        <div class="mb-3 col-6">
+          <label for="type" class="form-label">Type</label>
+          <input formControlName="type" type="text" class="form-control" id="type" placeholder="Enter unit type">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="identifier" class="form-label">Identifier</label>
+          <input formControlName="identifier" type="text" class="form-control" id="identifier" placeholder="Enter identifier">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="floorNo" class="form-label">FloorNo</label>
+          <input formControlName="floorNo" type="text" class="form-control" id="floorNo" placeholder="Enter floorNo">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="noOfBedrooms" class="form-label">Bedrooms</label>
+          <input formControlName="noOfBedrooms" type="text" class="form-control" id="noOfBedrooms" placeholder="Enter no of bedrooms">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="noOfBathrooms" class="form-label">Bathrooms</label>
+          <input formControlName="noOfBathrooms" type="text" class="form-control" id="noOfBathrooms" placeholder="Enter no of bathrooms">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="advanceInMonths" class="form-label">Advance in months</label>
+          <input formControlName="advanceInMonths" type="text" class="form-control" id="advanceInMonths" placeholder="Enter advance in months">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="currency" class="form-label">Currency</label>
+          <input formControlName="currency" type="text" class="form-control" id="currency" placeholder="Enter currency">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="rentPerMonth" class="form-label">Rent</label>
+          <input formControlName="rentPerMonth" type="text" class="form-control" id="rentPerMonth" placeholder="Enter rent per month">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="garbagePerMonth" class="form-label">Garbage</label>
+          <input formControlName="garbagePerMonth" type="text" class="form-control" id="garbagePerMonth" placeholder="Enter garbage per month">
+        </div>
+        <div class="mb-3 col-6">
+          <label for="securityPerMonth" class="form-label">Security</label>
+          <input formControlName="securityPerMonth" type="text" class="form-control" id="securityPerMonth" placeholder="Enter security per month">
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
+  </div>
+</ng-template>
+
+<ng-template #deleteModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">User delete</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete {{deleteUnit}}?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
+  </div>
+</ng-template>

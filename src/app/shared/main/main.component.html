@@ -1,0 +1,127 @@
+<!-- Side Navbar -->
+<nav class="side-navbar" [ngClass]="{ 'show': isTogglerActive, 'shrink': isTogglerActive}">
+  <div class="side-navbar-wrapper">
+    <!-- Sidebar Header    -->
+    <div class="sidenav-header d-flex align-items-center justify-content-center">
+      <!-- User Info-->
+      <div class="sidenav-header-inner text-center">
+        <img src="../../../assets/images/avator.svg" alt="user">
+        <h4>Nathan Andrews</h4>
+        <span>Web Developer</span>
+      </div>
+      <!-- Small Brand information, appears on minimized sidebar-->
+      <div class="sidenav-header-logo">
+        <a routerLink="/dashboard" class="brand-small text-center">
+          <strong>RMS</strong>
+        </a>
+      </div>
+    </div>
+    <!-- main menu-->
+    <div class="main-menu">
+      <h5 class="sidenav-heading">Main</h5>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+            <i class="bi bi-file-earmark-bar-graph"></i>
+            Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/apartments" routerLinkActive="active" class="nav-link">
+            <i class="bi bi-bricks"></i>
+            Apartments
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/units" routerLinkActive="active" class="nav-link">
+            <i class="bi bi-cone"></i>
+            Units
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/users" routerLinkActive="active" class="nav-link">
+            <i class="bi bi-person-lines-fill"></i>
+            Users
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/user-roles" routerLinkActive="active" class="nav-link">
+            <i class="bi bi-pass-fill"></i>
+            User Roles
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/tenants" routerLinkActive="active" class="nav-link">
+            <i class="bi bi-award"></i>
+            Tenants
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/occupations" routerLinkActive="active" class="nav-link">
+            <i class="bi bi-file-lock2"></i>
+            Occupations
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/rent-advances" routerLinkActive="active" class="nav-link">
+            <i class="bi bi-currency-exchange"></i>
+            Rent Advance
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/notices" routerLinkActive="active" class="nav-link">
+            <i class="bi bi-bell-fill"></i>
+            Notice
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!-- secondary menu -->
+    <div class="admin-menu">
+      <h5 class="sidenav-heading">User</h5>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a routerLink="/profile" routerLinkActive="active" class="nav-link">
+            <i class="bi bi-person-bounding-box"></i>
+            Profile
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/users" routerLinkActive="active" class="nav-link">
+            <i class="bi bi-gear-fill"></i>
+            Manage
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="page" [ngClass]="{ 'active': isTogglerActive}">
+  <!-- navbar-->
+  <header class="header">
+    <nav class="navbar">
+      <div class="container-fluid">
+        <div class="navbar-holder d-flex align-items-center justify-content-between">
+          <div class="navbar-header">
+            <a id="toggle-btn" class="menu-btn" (click)="toggleIsActive()">
+              <i class="fa fa-bars fa-lg" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <!-- breadcrumbs -->
+  <!-- <div class="container-fluid my-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Library</li>
+      </ol>
+    </nav>
+    <hr>
+  </div> -->
+  <!-- router outlet -->
+  <router-outlet></router-outlet>
+</div>

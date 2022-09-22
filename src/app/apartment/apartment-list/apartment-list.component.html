@@ -1,0 +1,169 @@
+<section id="apartments">
+  <div class="container">
+    <!-- create -->
+    <div class="d-flex flex-row-reverse my-2">
+      <button type="button" class="btn btn-primary" (click)="openCreate(createModal)">
+        <i class="bi bi-person-plus-fill"></i> Create
+      </button>
+    </div>
+    <!-- list -->
+    <div class="card">
+      <div class="card-body">
+        <form autocomplete="off" [formGroup]="form">
+          <div class="d-flex justify-content-between">
+            <!-- page size -->
+            <div class="row flex-fill mb-3">
+              <label for="selectPageSize" class="col-sm-5 col-md-3 col-form-label">Show</label>
+              <div class="col-sm-7 col-md-9">
+                <select id="selectPageSize" class="form-select" aria-label="Select page size" style="width: 5rem;"
+                  formControlName="pageSize">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+            </div>
+            <!-- search -->
+            <div class="row flex-fill mb-3">
+              <label for="search" class="col-sm-3 col-md-2 col-form-label">Search</label>
+              <div class="col-sm-9 col-md-10">
+                <input id="search" class="form-control" type="text" placeholder="Enter apartment name"
+                  aria-label="apartment name" formControlName="name">
+              </div>
+            </div>
+          </div>
+          <!-- users table -->
+          <div class="table-responsive">
+            <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Created On</th>
+                  <th scope="col">Modified On</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngIf="!isLoading else loading;">
+                  <ng-container *ngIf="apartments.length > 0 else noApartments;">
+                    <tr *ngFor="let apartment of apartments; let i = index;">
+                      <td>{{ i + 1 }}.</td>
+                      <td>
+                        <span *ngIf="apartment?.name; else noData;">
+                          {{ apartment?.name| titlecase }}
+                        </span>
+                      <td>
+                        <span *ngIf="apartment?.createdOn; else noData;">
+                          {{ apartment?.createdOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="apartment?.modifiedOn; else noData;">
+                          {{ apartment?.modifiedOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center justify-content-between">
+                          <!-- edit -->
+                          <button type="button" class="btn btn-action btn-outline-info" (click)="openEdit(apartment.id, updateModal)">
+                            <i class="bi bi-pencil-square"></i>
+                          </button>
+                          <!-- delete -->
+                          <button type="button" class="btn btn-action btn-outline-danger" (click)="openDelete(apartment.id, deleteModal)">
+                            <i class="bi bi-trash-fill"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<ng-template #noData>
+  ---
+</ng-template>
+
+<ng-template #noApartments>
+  <tr>
+    <td colspan="11">
+      <span style="font-style: italic; padding: 0.25rem 0.25rem; color: red;">
+        No apartments have been found.
+      </span>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #loading>
+  <tr>
+    <td colspan="11">
+      <div class="lds-roller" style="position: relative; left: 50%;">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #createModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Apartment create</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="createForm" (ngSubmit)="create(createForm)">
+      <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input formControlName="name" type="text" class="form-control" id="name" placeholder="Enter apartment name">
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Create</button>
+  </div>
+</ng-template>
+
+<ng-template #updateModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Apartment update</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="updateForm" (ngSubmit)="update(updateForm)">
+      <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input formControlName="name" type="text" class="form-control" id="name" placeholder="Enter apartment name">
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
+  </div>
+</ng-template>
+
+<ng-template #deleteModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">User delete</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete {{deleteApartmentName}}?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
+  </div>
+</ng-template>

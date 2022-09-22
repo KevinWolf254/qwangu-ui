@@ -1,0 +1,262 @@
+<section id="occupations">
+  <div class="container">
+    <!-- create -->
+    <div class="d-flex flex-row-reverse my-2">
+      <button type="button" class="btn btn-primary" (click)="openCreate(createModal)">
+        <i class="bi bi-person-plus-fill"></i> Create
+      </button>
+    </div>
+    <!-- list -->
+    <div class="card">
+      <div class="card-body">
+        <form autocomplete="off" [formGroup]="form">
+          <div class="d-flex justify-content-between">
+            <!-- page size -->
+            <div class="row flex-fill mb-3">
+              <label for="selectPageSize" class="col-xl-3 col-form-label">Show</label>
+              <div class="col-xl-9">
+                <select id="selectPageSize" class="form-select" aria-label="Select page size" style="width: 5rem;"
+                  formControlName="pageSize">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+            </div>
+            <!-- search -->
+            <div class="row flex-fill mb-3">
+              <label for="search" class="col-xl-2 col-form-label">Search</label>
+              <div id="search" class="col-xl-10">
+                  <div class="row g-2">
+                    <div class="col-4">
+                      <input formControlName="status"  type="text" class="form-control"  aria-label="status" placeholder="Enter status">
+                    </div>
+                    <div class="col-8">
+                      <input formControlName="paymentId"  type="text" class="form-control"  aria-label="payment transaction code" placeholder="Enter payment transaction code">
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <!-- users table -->
+          <div class="table-responsive">
+            <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Occupation</th>
+                  <th scope="col">Payment</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Details</th>
+                  <th scope="col">Returned On</th>
+                  <th scope="col">Created On</th>
+                  <th scope="col">Modified On</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngIf="!isLoading else loading;">
+                  <ng-container *ngIf="rentAdvances.length > 0 else noUsers;">
+                    <!-- <tr *ngFor="let user of users | paginate: { itemsPerPage: PAGE_SIZE, currentPage: PAGE } let i = index;"> -->
+                    <tr *ngFor="let rentAdvance of rentAdvances; let i = index;">
+                      <td>{{ i + 1 }}.</td>
+                      <td>
+                        <span *ngIf="rentAdvance?.occupationId; else noData;">
+                          {{ rentAdvance?.occupationId | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="rentAdvance?.paymentId; else noData;">
+                          {{ rentAdvance?.paymentId | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="rentAdvance?.status ; else noData;">
+                          {{ rentAdvance?.status | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="rentAdvance?.returnDetails; else noData;">
+                          {{ rentAdvance?.returnDetails | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="rentAdvance?.returnedOn; else noData;">
+                          {{ rentAdvance?.returnedOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="rentAdvance?.createdOn; else noData;">
+                          {{ rentAdvance?.createdOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="rentAdvance?.modifiedOn; else noData;">
+                          {{ rentAdvance?.modifiedOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center justify-content-between">
+                          <!-- edit -->
+                          <button type="button" class="btn btn-action btn-outline-info" (click)="openEdit(rentAdvance.id, updateModal)">
+                            <i class="bi bi-pencil-square"></i>
+                          </button>
+                          <!-- delete -->
+                          <button type="button" class="btn btn-action btn-outline-danger" (click)="openDelete(rentAdvance.id, deleteModal)">
+                            <i class="bi bi-trash-fill"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<ng-template #noData>
+  ---
+</ng-template>
+
+<ng-template #noUsers>
+  <tr>
+    <td colspan="11">
+      <span style="font-style: italic; padding: 0.25rem 0.25rem; color: red;">
+        No occupations have been found.
+      </span>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #loading>
+  <tr>
+    <td colspan="11">
+      <div class="lds-roller" style="position: relative; left: 50%;">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #createModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Rent advance create</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="createForm" (ngSubmit)="create(createForm)">
+      <div class="row">
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="occupationId" class="form-label">Occupation</label>
+          <select id="occupationId" class="form-select" formControlName="occupationId" aria-label="choose occupation">
+            <option value="">-- Choose Occupation --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="paymentId" class="form-label">Payment</label>
+          <select id="paymentId" class="form-select" formControlName="paymentId" aria-label="choose payment">
+            <option value="">-- Choose Payment --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="status" class="form-label">Status</label>
+          <select id="status" class="form-select" formControlName="status" aria-label="choose status">
+            <option value="">-- Choose status --</option>
+            <option value="HOLDING">HOLDING</option>
+            <option value="RELEASED">RELEASED</option>
+            <option value="RENT_PAYMENT">RENT_PAYMENT</option>
+          </select>
+        </div>
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="details" class="form-label">Details</label>
+          <input formControlName="returnDetails" type="text" class="form-control" id="details" placeholder="Enter details">
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Create</button>
+  </div>
+</ng-template>
+
+<ng-template #updateModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Rent advance update</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="updateForm" (ngSubmit)="update(updateForm)">
+      <div class="row">
+        <div class="col-12 mb-2">
+          <label for="id" class="form-label">Rent Advance ID</label>
+          <input formControlName="id" type="text" class="form-control" id="id" placeholder="Enter rent advance id">
+        </div>
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="occupationId" class="form-label">Occupation</label>
+          <select id="occupationId" class="form-select" formControlName="occupationId" aria-label="choose occupation">
+            <option value="">-- Choose Occupation --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="paymentId" class="form-label">Payment</label>
+          <select id="paymentId" class="form-select" formControlName="paymentId" aria-label="choose payment">
+            <option value="">-- Choose Payment --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="status" class="form-label">Status</label>
+          <select id="status" class="form-select" formControlName="status" aria-label="choose status">
+            <option value="">-- Choose status --</option>
+            <option value="HOLDING">HOLDING</option>
+            <option value="RELEASED">RELEASED</option>
+            <option value="RENT_PAYMENT">RENT_PAYMENT</option>
+          </select>
+        </div>
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="details" class="form-label">Details</label>
+          <input formControlName="returnDetails" type="text" class="form-control" id="details" placeholder="Enter details">
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
+  </div>
+</ng-template>
+
+<ng-template #deleteModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Rent advance delete</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete {{deleteRentAdvancePayment}}?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
+  </div>
+</ng-template>

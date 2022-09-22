@@ -1,0 +1,260 @@
+<section id="users">
+  <div class="container">
+    <!-- create -->
+    <div class="d-flex flex-row-reverse my-2">
+      <button type="button" class="btn btn-primary" (click)="open(createModal)">
+        <i class="bi bi-person-plus-fill"></i> Create
+      </button>
+    </div>
+    <!-- list -->
+    <div class="card">
+      <div class="card-body">
+        <form autocomplete="off" [formGroup]="form">
+          <div class="d-flex justify-content-between">
+            <!-- page size -->
+            <div class="row flex-fill mb-3">
+              <label for="selectPageSize" class="col-sm-5 col-md-3 col-form-label">Show</label>
+              <div class="col-sm-7 col-md-9">
+                <select id="selectPageSize" class="form-select" aria-label="Select page size" style="width: 5rem;"
+                  formControlName="pageSize">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+            </div>
+            <!-- search -->
+            <div class="row flex-fill mb-3">
+              <label for="search" class="col-sm-3 col-md-2 col-form-label">Search</label>
+              <div class="col-sm-9 col-md-10">
+                <input id="search" class="form-control" type="text" placeholder="Enter email address"
+                  aria-label="email address" formControlName="email">
+              </div>
+            </div>
+          </div>
+          <!-- users table -->
+          <div class="table-responsive">
+            <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Full Names</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Account Expired</th>
+                  <th scope="col">Account Locked</th>
+                  <th scope="col">Credentials Expired</th>
+                  <th scope="col">Enabled</th>
+                  <th scope="col">Role</th>
+                  <th scope="col">Created On</th>
+                  <th scope="col">Modified On</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngIf="!isLoading else loading;">
+                  <ng-container *ngIf="users.length > 0 else noUsers;">
+                    <!-- <tr *ngFor="let user of users | paginate: { itemsPerPage: PAGE_SIZE, currentPage: PAGE } let i = index;"> -->
+                    <tr *ngFor="let user of users; let i = index;">
+                      <td>{{ i + 1 }}.</td>
+                      <td>
+                        <span *ngIf="user?.person?.firstName; else noData;">
+                          {{ user?.person?.firstName| titlecase }}
+                        </span>
+                        <span *ngIf="user?.person?.otherNames; else noData;">
+                          {{ user?.person?.otherNames| titlecase }}
+                        </span>
+                        <span *ngIf="user?.person?.surname; else noData;">
+                          {{ user?.person?.surname| titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="user?.emailAddress; else noData;">
+                          {{ user?.emailAddress| titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <ng-container *ngIf="user?.isAccountExpired !== null && user?.isAccountExpired !== undefined else noData;">
+                          {{ user?.isAccountExpired }}
+                        </ng-container>
+                      </td>
+                      <td>
+                        <ng-container *ngIf="user?.isAccountLocked !== null && user?.isAccountLocked !== undefined else noData;">
+                          {{ user?.isAccountLocked }}
+                        </ng-container>
+                      </td>
+                      <td>
+                        <ng-container *ngIf="user?.isCredentialsExpired !== null && user?.isCredentialsExpired !== undefined else noData;">
+                          {{ user?.isCredentialsExpired }}
+                        </ng-container>
+                      </td>
+                      <td>
+                        <ng-container *ngIf="user?.isEnabled !== null && user?.isEnabled !== undefined else noData;">
+                          {{ user?.isEnabled }}
+                        </ng-container>
+                      </td>
+                      <td>
+                        <ng-container *ngIf="user?.roleId else noData;">
+                          <span class="badge rounded-pill bg-info text-dark p-2" style="min-width: 4rem;">
+                            {{ user?.roleId }}
+                          </span>
+                        </ng-container>
+                      </td>
+                      <td>
+                        <span *ngIf="user?.createdOn; else noData;">
+                          {{ user?.createdOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="user?.modifiedOn; else noData;">
+                          {{ user?.modifiedOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center justify-content-between">
+                          <!-- edit -->
+                          <button type="button" class="btn btn-action btn-outline-info" (click)="openByRoleId(user.id, updateModal)">
+                            <i class="bi bi-pencil-square"></i>
+                          </button>
+                          <!-- delete -->
+                          <button type="button" class="btn btn-action btn-outline-danger" (click)="openByRoleIdToDelete(user.id, deleteModal)">
+                            <i class="bi bi-trash-fill"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<ng-template #noData>
+  ---
+</ng-template>
+
+<ng-template #noUsers>
+  <tr>
+    <td colspan="11">
+      <span style="font-style: italic; padding: 0.25rem 0.25rem; color: red;">
+        No users have been found.
+      </span>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #loading>
+  <tr>
+    <td colspan="11">
+      <div class="lds-roller" style="position: relative; left: 50%;">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #createModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">User create</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="createForm" (ngSubmit)="create(createForm)">
+      <div class="mb-3">
+        <label for="emailAddress" class="form-label">Email Address</label>
+        <input formControlName="emailAddress" type="text" class="form-control" id="emailAddress" placeholder="Enter email address">
+      </div>
+      <div class="row mb-3">
+        <div class="col-6">
+          <label for="fname" class="form-label">First Name</label>
+          <input formControlName="fname" type="text" class="form-control" id="fname" placeholder="Enter first name">
+        </div>
+        <div class="col-6">
+          <label for="oName" class="form-label">Other Names</label>
+          <input formControlName="oName" type="text" class="form-control" id="oName" placeholder="Enter other names">
+        </div>
+        <div class="col-12">
+          <label for="surname" class="form-label">Surname</label>
+          <input formControlName="surname" type="text" class="form-control" id="surname" placeholder="Enter surname">
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="role" class="form-label">Role</label>
+        <select id="role" class="form-select" formControlName="role" aria-label="choose role">
+          <option value="">-- Choose Role --</option>
+          <option value="1">One</option>
+          <option value="2">Two</option>
+          <option value="3">Three</option>
+        </select>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Create</button>
+  </div>
+</ng-template>
+
+<ng-template #updateModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">User update</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="updateForm" (ngSubmit)="update(updateForm)">
+      <div class="mb-3">
+        <label for="userId" class="form-label">User ID</label>
+        <input formControlName="userId" type="text" class="form-control" id="userId" placeholder="Enter role id">
+      </div>
+      <div class="row my-3">
+        <div class="col-6">
+          <label for="fname" class="form-label">First Name</label>
+          <input formControlName="fname" type="text" class="form-control" id="fname" placeholder="Enter first name">
+        </div>
+        <div class="col-6">
+          <label for="oName" class="form-label">Other Names</label>
+          <input formControlName="oName" type="text" class="form-control" id="oName" placeholder="Enter other names">
+        </div>
+        <div class="col-12">
+          <label for="surname" class="form-label">Surname</label>
+          <input formControlName="surname" type="text" class="form-control" id="surname" placeholder="Enter surname">
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="role" class="form-label">Role</label>
+        <select id="role" class="form-select" formControlName="role" aria-label="choose role">
+          <option value="">-- Choose Role --</option>
+          <option value="1">One</option>
+          <option value="2">Two</option>
+          <option value="3">Three</option>
+        </select>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
+  </div>
+</ng-template>
+
+<ng-template #deleteModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">User delete</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete {{deleteUserName}}?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
+  </div>
+</ng-template>

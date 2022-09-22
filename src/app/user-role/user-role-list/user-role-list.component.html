@@ -1,0 +1,265 @@
+<section id="users">
+  <div class="container">
+    <!-- create -->
+    <div class="d-flex flex-row-reverse my-2">
+      <button type="button" class="btn btn-primary" (click)="open(createModal)">
+        <i class="bi bi-person-plus-fill"></i> Create
+      </button>
+    </div>
+    <!-- list -->
+    <div class="card">
+      <div class="card-body">
+        <form autocomplete="off" [formGroup]="form">
+          <div class="d-flex justify-content-between">
+            <!-- page size -->
+            <div class="row flex-fill mb-3">
+              <label for="selectPageSize" class="col-sm-5 col-md-3 col-form-label">Show</label>
+              <div class="col-sm-7 col-md-9">
+                <select id="selectPageSize" class="form-select" aria-label="Select page size" style="width: 5rem;"
+                  formControlName="pageSize">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+            </div>
+            <!-- search -->
+            <div class="row flex-fill mb-3">
+              <label for="search" class="col-sm-3 col-md-2 col-form-label">Search</label>
+              <div class="col-sm-9 col-md-10">
+                <input id="search" class="form-control" type="text" placeholder="Enter role name" aria-label="role name"
+                  formControlName="name">
+              </div>
+            </div>
+          </div>
+          <!-- users table -->
+          <div class="table-responsive">
+            <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Created On</th>
+                  <th scope="col">Created By</th>
+                  <th scope="col">Modified On</th>
+                  <th scope="col">Modified By</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngIf="!isLoading else loading;">
+                  <ng-container *ngIf="userRoles.length > 0 else noUsers;">
+                    <!-- <tr *ngFor="let user of users | paginate: { itemsPerPage: PAGE_SIZE, currentPage: PAGE } let i = index;"> -->
+                    <tr *ngFor="let role of userRoles; let i = index;">
+                      <td>{{ i + 1 }}.</td>
+                      <td>
+                        <span *ngIf="role?.name; else noData;">
+                          {{ role?.name | uppercase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="role?.createdOn; else noData;">
+                          {{ role?.createdOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="role?.createdBy; else noData;">
+                          {{ role?.createdBy| titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="role?.modifiedOn; else noData;">
+                          {{ role?.modifiedOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="role?.modifiedBy; else noData;">
+                          {{ role?.modifiedBy| titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center justify-content-between">
+                          <!-- edit -->
+                          <button type="button" class="btn btn-action btn-outline-info"
+                            (click)="editUserRole(role.id, updateModal)">
+                            <i class="bi bi-pencil-square"></i>
+                          </button>
+                          <!-- delete -->
+                          <button type="button" class="btn btn-action btn-outline-danger"
+                            (click)="deleteUserRole(role.id, deleteModal)">
+                            <i class="bi bi-trash-fill"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<ng-template #noData>
+  ---
+</ng-template>
+
+<ng-template #noUsers>
+  <tr>
+    <td colspan="11">
+      <span style="font-style: italic; padding: 0.25rem 0.25rem; color: red;">
+        No users have been found.
+      </span>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #loading>
+  <tr>
+    <td colspan="11">
+      <div class="lds-roller" style="position: relative; left: 50%;">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #createModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Role create</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="createForm" (ngSubmit)="create(createForm)">
+      <div class="mb-3">
+        <label for="name" class="form-label">Role Name</label>
+        <div class="input-group mb-3">
+          <input formControlName="name" type="text" class="form-control" id="name" placeholder="Enter role name">
+          <button type="button" class="btn-primary" (click)="addCreateAuthority()">Add Authority</button>
+        </div>
+      </div>
+      <div class="mb-3" formArrayName="authorities">
+        <ng-container *ngFor="let createForm of createAuthorities?.controls; let i = index;">
+          <form [formGroup]="authorityForm">
+            <div class="row gy-4 gx-3 align-items-center">
+              <div class="col-xl-6 mb-3">
+                <label for="name" class="form-label">Authority Name</label>
+                  <input formControlName="name" type="text" class="form-control" id="name"
+                    placeholder="Enter authority name">
+              </div>
+              <div class="col-4 row align-items-baseline">
+                <div class="form-check form-check-inline col-auto">
+                  <input class="form-check-input" type="checkbox" [id]="'create'+i" formControlName="create">
+                  <label class="form-check-label" [for]="'create'+i">Create</label>
+                </div>
+                <div class="form-check form-check-inline col-auto">
+                  <input class="form-check-input" type="checkbox" [id]="'read'+i" formControlName="read">
+                  <label class="form-check-label" [for]="'read'+i">Read</label>
+                </div>
+                <div class="form-check form-check-inline col-auto">
+                  <input class="form-check-input" type="checkbox" [id]="'update'+i" formControlName="update">
+                  <label class="form-check-label" [for]="'update'+i">Update</label>
+                </div>
+                <div class="form-check form-check-inline col-auto">
+                  <input class="form-check-input" type="checkbox" [id]="'authorize'+i" formControlName="authorize">
+                  <label class="form-check-label" [for]="'authorize'+i">Authorize</label>
+                </div>
+              </div>
+              <div class="col-2">
+                <button type="button" class="btn-primary" (click)="removeCreateAuthority(i)">Remove</button>
+              </div>
+            </div>
+          </form>
+
+        </ng-container>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Create</button>
+  </div>
+</ng-template>
+
+<ng-template #updateModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Role update</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="updateForm" (ngSubmit)="update(updateForm)">
+      <div class="mb-3">
+        <label for="roleId" class="form-label">Role ID</label>
+        <input formControlName="roleId" type="text" class="form-control" id="roleId" placeholder="Enter role id">
+      </div>
+      <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <!-- <input formControlName="name" type="text" class="form-control" id="name" placeholder="Enter role name"> -->
+        <div class="input-group mb-3">
+          <input formControlName="name" type="text" class="form-control" id="name" placeholder="Enter role name">
+          <button type="button" class="btn-primary" (click)="addUpdateAuthority()">Add Authority</button>
+        </div>
+      </div>
+      <div class="mb-3" formArrayName="authorities">
+        <ng-container *ngFor="let updateForm of updateAuthorities?.controls; let i = index;">
+          <form [formGroup]="authorityForm">
+            <div class="row gy-4 gx-3 align-items-center">
+              <div class="col-xl-6 mb-3">
+                <label for="name" class="form-label">Authority Name</label>
+                  <input formControlName="name" type="text" class="form-control" id="name"
+                    placeholder="Enter authority name">
+              </div>
+              <div class="col-4 row align-items-baseline">
+                <div class="form-check form-check-inline col-auto">
+                  <input class="form-check-input" type="checkbox" [id]="'create'+i" formControlName="create">
+                  <label class="form-check-label" [for]="'create'+i">Create</label>
+                </div>
+                <div class="form-check form-check-inline col-auto">
+                  <input class="form-check-input" type="checkbox" [id]="'read'+i" formControlName="read">
+                  <label class="form-check-label" [for]="'read'+i">Read</label>
+                </div>
+                <div class="form-check form-check-inline col-auto">
+                  <input class="form-check-input" type="checkbox" [id]="'update'+i" formControlName="update">
+                  <label class="form-check-label" [for]="'update'+i">Update</label>
+                </div>
+                <div class="form-check form-check-inline col-auto">
+                  <input class="form-check-input" type="checkbox" [id]="'authorize'+i" formControlName="authorize">
+                  <label class="form-check-label" [for]="'authorize'+i">Authorize</label>
+                </div>
+              </div>
+              <div class="col-2">
+                <button type="button" class="btn-primary" (click)="removeUpdateAuthority(i)">Remove</button>
+              </div>
+            </div>
+          </form>
+
+        </ng-container>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
+  </div>
+</ng-template>
+
+<ng-template #deleteModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Role delete</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete role {{deleteRoleName}}?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
+  </div>
+</ng-template>

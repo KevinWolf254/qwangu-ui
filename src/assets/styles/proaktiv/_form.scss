@@ -1,0 +1,11 @@
+.form-check-input {
+
+  &:disabled {
+    opacity: 0.9;
+  }
+
+  &:checked {
+    background-color: green;
+    border-color: green;
+  }
+}
