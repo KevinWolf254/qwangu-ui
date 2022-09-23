@@ -58,6 +58,10 @@ const routes: Routes = [
       {
         path: 'notices',
         loadChildren: () => import('./notice/notice.module').then(m => m.NoticeModule)
+      },
+      {
+        path: 'payments',
+        loadChildren: () => import('./payment/payment.module').then(m => m.PaymentModule)
       }
     ]
   }

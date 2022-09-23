@@ -1,0 +1,275 @@
+<section id="payments">
+  <div class="container">
+    <!-- create -->
+    <!-- <div class="d-flex flex-row-reverse my-2">
+      <button type="button" class="btn btn-primary" (click)="openCreate(createModal)">
+        <i class="bi bi-person-plus-fill"></i> Create
+      </button>
+    </div> -->
+    <!-- list -->
+    <div class="card mt-4">
+      <div class="card-body">
+        <form autocomplete="off" [formGroup]="form">
+          <div class="d-flex justify-content-between">
+            <!-- page size -->
+            <div class="row flex-fill mb-3">
+              <label for="selectPageSize" class="col-xl-3 col-form-label">Show</label>
+              <div class="col-xl-9">
+                <select id="selectPageSize" class="form-select" aria-label="Select page size" style="width: 5rem;"
+                  formControlName="pageSize">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+            </div>
+            <!-- search -->
+            <div class="row flex-fill mb-3">
+              <label for="search" class="col-xl-2 col-form-label">Search</label>
+              <div id="search" class="col-xl-10">
+                  <div class="row g-2">
+                    <div class="col-md-6 col-lg-4">
+                      <select id="status" class="form-select" formControlName="status" aria-label="choose status">
+                        <option value="">-- Choose Status --</option>
+                        <option value="NEW">NEW</option>
+                        <option value="PROCESSED">PROCESSED</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                      <select id="type" class="form-select" formControlName="type" aria-label="choose type">
+                        <option value="">-- Choose Type --</option>
+                        <option value="MPESA_PAY_BILL">MPESA_PAY_BILL</option>
+                        <option value="MPESA_TILL">MPESA_TILL</option>
+                        <option value="PAYPAL">PAYPAL</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                      <input formControlName="shortCode" type="text" class="form-control"  aria-label="shortCode" placeholder="Enter shortCode">
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                      <input formControlName="referenceNo" type="text" class="form-control"  aria-label="referenceNo" placeholder="Enter referenceNo">
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                      <input formControlName="mobileNumber" type="text" class="form-control"  aria-label="mobileNumber" placeholder="Enter mobileNumber">
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <!-- users table -->
+          <div class="table-responsive">
+            <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Reference No.</th>
+                  <th scope="col">Full Name</th>
+                  <th scope="col">Mobile No.</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Short Code</th>
+                  <th scope="col">Created On</th>
+                  <th scope="col">Modified On</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngIf="!isLoading else loading;">
+                  <ng-container *ngIf="payments.length > 0 else noUsers;">
+                    <tr *ngFor="let payment of payments; let i = index;">
+                      <td>{{ i + 1 }}.</td>
+                      <td>
+                        <span *ngIf="payment?.type; else noData;">
+                          {{ payment?.type | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="payment?.referenceNo; else noData;">
+                          {{ payment?.referenceNo | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="payment?.firstName && payment?.lastName; else noData;">
+                          {{ payment?.firstName | titlecase }}
+                          {{ payment?.middleName | titlecase }}
+                          {{ payment?.lastName | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="payment?.mobileNumber; else noData;">
+                          {{ payment?.mobileNumber | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="payment?.amount; else noData;">
+                          KES {{ payment?.amount }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="payment?.status; else noData;">
+                          {{ payment?.status | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="payment?.shortCode; else noData;">
+                          {{ payment?.shortCode | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="payment?.createdOn; else noData;">
+                          {{ payment?.createdOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="payment?.modifiedOn; else noData;">
+                          {{ payment?.modifiedOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center justify-content-between">
+                          <!-- view -->
+                          <button type="button" class="btn btn-action btn-outline-info" (click)="openView(payment.id, viewModal)">
+                            <i class="bi bi-pencil-square"></i>
+                          </button>
+                          <!-- delete -->
+                          <button type="button" class="btn btn-action btn-outline-danger" (click)="openDelete(payment.id, deleteModal)">
+                            <i class="bi bi-trash-fill"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<ng-template #noData>
+  ---
+</ng-template>
+
+<ng-template #noUsers>
+  <tr>
+    <td colspan="11">
+      <span style="font-style: italic; padding: 0.25rem 0.25rem; color: red;">
+        No payments have been found.
+      </span>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #loading>
+  <tr>
+    <td colspan="11">
+      <div class="lds-roller" style="position: relative; left: 50%;">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #viewModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Payment view</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="viewForm" (ngSubmit)="update(viewForm)">
+      <div class="row">
+        <div class="col-12 mb-2">
+          <label for="id" class="form-label">Payment ID</label>
+          <input formControlName="id" type="text" class="form-control" id="id" placeholder="Enter payment id">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="status" class="form-label">Status</label>
+          <input formControlName="status" type="text" class="form-control" id="status" placeholder="Enter payment status">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="type" class="form-label">Type</label>
+          <input formControlName="type" type="text" class="form-control" id="type" placeholder="Enter payment type">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="transactionId" class="form-label">Transaction ID</label>
+          <input formControlName="transactionId" type="text" class="form-control" id="transactionId" placeholder="Enter transaction id">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="transactionId" class="form-label">Transaction ID</label>
+          <input formControlName="transactionId" type="text" class="form-control" id="transactionId" placeholder="Enter transaction id">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="transactionType" class="form-label">Transaction Type</label>
+          <input formControlName="transactionType" type="text" class="form-control" id="transactionType" placeholder="Enter transaction type">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="transactionTime" class="form-label">Transaction Time</label>
+          <input formControlName="transactionTime" type="text" class="form-control" id="transactionTime" placeholder="Enter transaction time">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="amount" class="form-label">Amount</label>
+          <input formControlName="amount" type="text" class="form-control" id="amount" placeholder="Enter amount">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="shortCode" class="form-label">ShortCode</label>
+          <input formControlName="shortCode" type="text" class="form-control" id="shortCode" placeholder="Enter shortCode">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="referenceNo" class="form-label">Reference No.</label>
+          <input formControlName="referenceNo" type="text" class="form-control" id="referenceNo" placeholder="Enter referenceNo">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="invoiceNo" class="form-label">Invoice No.</label>
+          <input formControlName="invoiceNo" type="text" class="form-control" id="invoiceNo" placeholder="Enter invoiceNo">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="thirdPartyId" class="form-label">ThirdParty Id</label>
+          <input formControlName="thirdPartyId" type="text" class="form-control" id="thirdPartyId" placeholder="Enter thirdPartyId">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="mobileNumber" class="form-label">Mobile No.</label>
+          <input formControlName="mobileNumber" type="text" class="form-control" id="mobileNumber" placeholder="Enter mobileNumber">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="firstName" class="form-label">First Name</label>
+          <input formControlName="firstName" type="text" class="form-control" id="firstName" placeholder="Enter firstName">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="middleName" class="form-label">Middle Name</label>
+          <input formControlName="middleName" type="text" class="form-control" id="middleName" placeholder="Enter middleName">
+        </div>
+        <div class="col-4 mb-2">
+          <label for="lastName" class="form-label">Last Name</label>
+          <input formControlName="lastName" type="text" class="form-control" id="lastName" placeholder="Enter lastName">
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
+  </div>
+</ng-template>
+
+<ng-template #deleteModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Notice delete</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete {{deleteNotice}}?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
+  </div>
+</ng-template>
