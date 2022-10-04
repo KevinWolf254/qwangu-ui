@@ -153,8 +153,8 @@
           <form [formGroup]="authorityForm">
             <div class="row gy-4 gx-3 align-items-center">
               <div class="col-xl-6 mb-3">
-                <label for="name" class="form-label">Authority Name</label>
-                  <input formControlName="name" type="text" class="form-control" id="name"
+                <label [for]="'name'+i" class="form-label">Authority Name</label>
+                  <input formControlName="name" type="text" class="form-control" [id]="'name'+i"
                     placeholder="Enter authority name">
               </div>
               <div class="col-4 row align-items-baseline">

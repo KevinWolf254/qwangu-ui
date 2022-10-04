@@ -17,7 +17,9 @@ export class Payment {
     public middleName: string,
     public lastName: string,
     public createdOn: Date,
+    public createdBy: string,
     public modifiedOn: Date,
+    public modifiedBy: string,
   ){}
 }
 

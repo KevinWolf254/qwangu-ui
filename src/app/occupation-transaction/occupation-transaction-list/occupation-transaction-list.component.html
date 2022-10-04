@@ -1,0 +1,384 @@
+<section id="payments">
+  <div class="container">
+    <!-- create -->
+    <div class="d-flex flex-row-reverse my-2">
+      <button type="button" class="btn btn-primary" (click)="openCreate(createModal)">
+        <i class="bi bi-person-plus-fill"></i> Create
+      </button>
+    </div>
+    <!-- list -->
+    <div class="card mt-4">
+      <div class="card-body">
+        <form autocomplete="off" [formGroup]="form">
+          <div class="d-flex justify-content-between">
+            <!-- page size -->
+            <div class="row flex-fill mb-3">
+              <label for="selectPageSize" class="col-xl-5 col-form-label">Show</label>
+              <div class="col-xl-7">
+                <select id="selectPageSize" class="form-select" aria-label="Select page size" style="width: 5rem;"
+                  formControlName="pageSize">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+            </div>
+            <!-- search -->
+            <div class="row flex-fill mb-3">
+              <label for="search" class="col-xl-2 col-form-label">Search</label>
+              <div id="search" class="col-xl-10">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <select id="occupationId" class="form-select" formControlName="occupationId" aria-label="choose occupation">
+                      <option value="">-- Choose Occupation --</option>
+                      <option value="NEW">NEW</option>
+                      <option value="PROCESSED">PROCESSED</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <select id="paymentId" class="form-select" formControlName="paymentId" aria-label="choose payment">
+                      <option value="">-- Choose Payment --</option>
+                      <option value="MPESA_PAY_BILL">MPESA_PAY_BILL</option>
+                      <option value="MPESA_TILL">MPESA_TILL</option>
+                      <option value="PAYPAL">PAYPAL</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- users table -->
+          <div class="table-responsive">
+            <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Total Amount Owed</th>
+                  <th scope="col">Total Amount Paid</th>
+                  <th scope="col">Total Amount CarriedForward</th>
+                  <th scope="col">occupationId</th>
+                  <th scope="col">receivableId</th>
+                  <th scope="col">paymentId</th>
+                  <th scope="col">Created On</th>
+                  <th scope="col">Modified On</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngIf="!isLoading else loading;">
+                  <ng-container *ngIf="occupationTransactions.length > 0 else noUsers;">
+                    <tr *ngFor="let occupationTransactions of occupationTransactions; let i = index;">
+                      <td>{{ i + 1 }}.</td>
+                      <td>
+                        <span *ngIf="occupationTransactions?.type; else noData;">
+                          {{ occupationTransactions?.type | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="occupationTransactions?.totalAmountOwed != null; else noData;">
+                          KES {{ occupationTransactions?.totalAmountOwed }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="occupationTransactions?.totalAmountPaid != null; else noData;">
+                          KES {{ occupationTransactions?.totalAmountPaid }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="occupationTransactions?.totalAmountCarriedForward != null; else noData;">
+                          KES {{ occupationTransactions?.totalAmountCarriedForward }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="occupationTransactions?.occupationId; else noData;">
+                          {{ occupationTransactions?.occupationId | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="occupationTransactions?.receivableId; else noData;">
+                          {{ occupationTransactions?.receivableId | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="occupationTransactions?.paymentId; else noData;">
+                          {{ occupationTransactions?.paymentId | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="occupationTransactions?.createdOn; else noData;">
+                          {{ occupationTransactions?.createdOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="occupationTransactions?.modifiedOn; else noData;">
+                          {{ occupationTransactions?.modifiedOn | date:'mediumDate' }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center justify-content-between">
+                          <!-- view -->
+                          <button type="button" class="btn btn-action btn-outline-info"
+                            (click)="openEdit(occupationTransactions.id, updateModal)">
+                            <i class="bi bi-pencil-square"></i>
+                          </button>
+                          <!-- delete -->
+                          <button type="button" class="btn btn-action btn-outline-danger"
+                            (click)="openDelete(occupationTransactions.id, deleteModal)">
+                            <i class="bi bi-trash-fill"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<ng-template #noData>
+  ---
+</ng-template>
+
+<ng-template #noUsers>
+  <tr>
+    <td colspan="11">
+      <span style="font-style: italic; padding: 0.25rem 0.25rem; color: red;">
+        No occupation transaction have been found.
+      </span>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #loading>
+  <tr>
+    <td colspan="11">
+      <div class="lds-roller" style="position: relative; left: 50%;">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #createModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Occupation Transaction create</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="createForm" (ngSubmit)="update(createForm)">
+      <div class="row">
+        <div class="col-12 mb-2">
+          <label for="type" class="form-label">Type</label>
+          <select id="type" class="form-select" formControlName="type" aria-label="choose type">
+            <option value="">-- Choose Occupation --</option>
+            <option value="RENT">RENT</option>
+            <option value="PENALTY">PENALTY</option>
+            <option value="BOOKING">BOOKING</option>
+          </select>
+        </div>
+        <div class="col-12 mb-2">
+          <label for="transactionType" class="form-label">Transaction</label>
+          <select id="transactionType" class="form-select" formControlName="transactionType" aria-label="choose transaction yype">
+            <option value="">-- Choose Transaction Type --</option>
+            <option value="CREDIT">CREDIT</option>
+            <option value="DEBIT">DEBIT</option>
+          </select>
+        </div>
+        <div class="col-12 mb-2">
+          <label for="period" class="form-label">Period</label>
+          <input formControlName="period" type="text" class="form-control" id="period" placeholder="Enter period">
+        </div>
+        <div class="col-12 mb-2">
+          <label for="rentAmount" class="form-label">Rent Amount</label>
+          <input formControlName="rentAmount" type="text" class="form-control" id="rentAmount"
+            placeholder="Enter rent amount">
+        </div>
+        <div class="col-6 mb-2">
+          <label for="securityAmount" class="form-label">Security Amount</label>
+          <input formControlName="securityAmount" type="text" class="form-control" id="securityAmount"
+            placeholder="Enter security smount">
+        </div>
+        <div class="col-6 mb-2">
+          <label for="garbageAmount" class="form-label">Garbage Amount</label>
+          <input formControlName="garbageAmount" type="text" class="form-control" id="garbageAmount"
+            placeholder="Enter garbage amount">
+        </div>
+
+        <div class="mb-3">
+          <button type="button" class="btn-primary" (click)="addOnCreateOtherAmounts()">Add Other Amounts</button>
+        </div>
+
+        <div class="mb-3" formArrayName="otherAmounts">
+          <ng-container *ngFor="let createForm of createOtherAmounts?.controls; let i = index;">
+            <form [formGroup]="otherAmountsForm">
+              <div class="row">
+                <div class="col-5 mb-2">
+                  <label [for]="'name'+i" class="form-label">Name</label>
+                  <input formControlName="name" type="text" class="form-control" [id]="'name'+i"
+                    placeholder="Enter name">
+                </div>
+                <div class="col-5 mb-2">
+                  <label for="amount" class="form-label">Amount</label>
+                  <input formControlName="amount" type="text" class="form-control" id="amount"
+                    placeholder="Enter amount">
+                </div>
+                <div class="col-2 mb-3">
+                  <button type="button" class="btn-danger" (click)="removeOnCreateOtherAmounts(i)">Remove</button>
+                </div>
+              </div>
+            </form>
+          </ng-container>
+        </div>
+
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="occupationId" class="form-label">Occupation</label>
+          <select id="occupationId" class="form-select" formControlName="occupationId" aria-label="choose occupation">
+            <option value="">-- Choose Occupation --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="paymentId" class="form-label">Payment</label>
+          <select id="paymentId" class="form-select" formControlName="paymentId" aria-label="choose payment">
+            <option value="">-- Choose Payment --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
+  </div>
+</ng-template>
+
+<ng-template #updateModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Occupation Transaction update</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="updateForm" (ngSubmit)="update(updateForm)">
+      <div class="row">
+        <div class="col-12 mb-2">
+          <label for="occupationTransactionId" class="form-label">Occupation Transaction ID</label>
+          <input formControlName="occupationTransactionId" type="text" class="form-control" id="occupationTransactionId" placeholder="Enter occupation transaction id">
+        </div>
+        <div class="col-12 mb-2">
+          <label for="type" class="form-label">Type</label>
+          <select id="type" class="form-select" formControlName="type" aria-label="choose type">
+            <option value="">-- Choose Occupation --</option>
+            <option value="RENT">RENT</option>
+            <option value="PENALTY">PENALTY</option>
+            <option value="BOOKING">BOOKING</option>
+          </select>
+        </div>
+        <div class="col-12 mb-2">
+          <label for="transactionType" class="form-label">Transaction</label>
+          <select id="transactionType" class="form-select" formControlName="transactionType" aria-label="choose transaction yype">
+            <option value="">-- Choose Transaction Type --</option>
+            <option value="CREDIT">CREDIT</option>
+            <option value="DEBIT">DEBIT</option>
+          </select>
+        </div>
+        <div class="col-12 mb-2">
+          <label for="period" class="form-label">Period</label>
+          <input formControlName="period" type="text" class="form-control" id="period" placeholder="Enter period">
+        </div>
+        <div class="col-12 mb-2">
+          <label for="rentAmount" class="form-label">Rent Amount</label>
+          <input formControlName="rentAmount" type="text" class="form-control" id="rentAmount"
+            placeholder="Enter rent amount">
+        </div>
+        <div class="col-6 mb-2">
+          <label for="securityAmount" class="form-label">Security Amount</label>
+          <input formControlName="securityAmount" type="text" class="form-control" id="securityAmount"
+            placeholder="Enter security smount">
+        </div>
+        <div class="col-6 mb-2">
+          <label for="garbageAmount" class="form-label">Garbage Amount</label>
+          <input formControlName="garbageAmount" type="text" class="form-control" id="garbageAmount"
+            placeholder="Enter garbage amount">
+        </div>
+
+        <div class="mb-3">
+          <button type="button" class="btn-primary" (click)="addOnCreateOtherAmounts()">Add Other Amounts</button>
+        </div>
+
+        <div class="mb-3" formArrayName="otherAmounts">
+          <ng-container *ngFor="let createForm of createOtherAmounts?.controls; let i = index;">
+            <form [formGroup]="otherAmountsForm">
+              <div class="row">
+                <div class="col-5 mb-2">
+                  <label [for]="'name'+i" class="form-label">Name</label>
+                  <input formControlName="name" type="text" class="form-control" [id]="'name'+i"
+                    placeholder="Enter name">
+                </div>
+                <div class="col-5 mb-2">
+                  <label for="amount" class="form-label">Amount</label>
+                  <input formControlName="amount" type="text" class="form-control" id="amount"
+                    placeholder="Enter amount">
+                </div>
+                <div class="col-2 mb-3">
+                  <button type="button" class="btn-danger" (click)="removeOnCreateOtherAmounts(i)">Remove</button>
+                </div>
+              </div>
+            </form>
+          </ng-container>
+        </div>
+
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="occupationId" class="form-label">Occupation</label>
+          <select id="occupationId" class="form-select" formControlName="occupationId" aria-label="choose occupation">
+            <option value="">-- Choose Occupation --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="paymentId" class="form-label">Payment</label>
+          <select id="paymentId" class="form-select" formControlName="paymentId" aria-label="choose payment">
+            <option value="">-- Choose Payment --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
+  </div>
+</ng-template>
+
+<ng-template #deleteModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Notice delete</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete with id {{deleteOccupationTransactionId}}?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
+  </div>
+</ng-template>

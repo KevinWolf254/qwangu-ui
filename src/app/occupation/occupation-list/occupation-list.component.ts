@@ -37,6 +37,7 @@ export class OccupationListComponent implements OnInit {
       'startedOn': ['', Validators.required],
       'apartmentId': ['', Validators.required],
       'unitId': ['', Validators.required],
+      'rentAdvanceId': ['', Validators.required],
     });
     this.updateForm = this._fb.group({
       'occupationId': ['', Validators.required],
@@ -46,6 +47,7 @@ export class OccupationListComponent implements OnInit {
       'tenantId': ['', Validators.required],
       'apartmentId': ['', Validators.required],
       'unitId': ['', Validators.required],
+      'rentAdvanceId': ['', Validators.required],
     });
     this.deleteUserName = 'John Doe';
     this.isLoading = false;

@@ -54,7 +54,7 @@ export class PaymentListComponent implements OnInit {
     this.deleteNotice = 'WERD12R5667';
     this.isLoading = false;
     let today: Date = new Date;
-    let payment = new Payment("1", PaymentStatus.PROCESSED, PaymentType.MPESA_TILL, 'WEDRF2ER34', 'MPESA', today, 25000, '233456', 'WEDRF2ER34', 'WEDRF2ER34', '5000', '', '0720000000', 'JOHN', '', 'DOE', today, today);
+    let payment = new Payment("1", PaymentStatus.PROCESSED, PaymentType.MPESA_TILL, 'WEDRF2ER34', 'MPESA', today, 25000, '233456', 'WEDRF2ER34', 'WEDRF2ER34', '5000', '', '0720000000', 'JOHN', '', 'DOE', today, '', today, '');
     this.payments = [payment];
    }
 
