@@ -26,71 +26,71 @@
             Dashboard
           </a>
         </li>
-        <li class="nav-item">
+        <li *requiredRole="'APARTMENT_READ'" class="nav-item">
           <a routerLink="/apartments" routerLinkActive="active" class="nav-link">
             <i class="bi bi-bricks"></i>
             Apartments
           </a>
         </li>
-        <li class="nav-item">
+        <li *requiredRole="'UNIT_READ'" class="nav-item">
           <a routerLink="/units" routerLinkActive="active" class="nav-link">
             <i class="bi bi-cone"></i>
             Units
           </a>
         </li>
-        <li class="nav-item">
+        <li *requiredRole="'USER_READ'" class="nav-item">
           <a routerLink="/users" routerLinkActive="active" class="nav-link">
             <i class="bi bi-person-lines-fill"></i>
             Users
           </a>
         </li>
-        <li class="nav-item">
+        <li *requiredRole="'USER_ROLE_READ'" class="nav-item">
           <a routerLink="/user-roles" routerLinkActive="active" class="nav-link">
             <i class="bi bi-pass-fill"></i>
             User Roles
           </a>
         </li>
-        <li class="nav-item">
+        <li *requiredRole="'TENANT_READ'" class="nav-item">
           <a routerLink="/tenants" routerLinkActive="active" class="nav-link">
             <i class="bi bi-award"></i>
             Tenants
           </a>
         </li>
-        <li class="nav-item">
+        <li *requiredRole="'OCCUPATION_READ'" class="nav-item">
           <a routerLink="/occupations" routerLinkActive="active" class="nav-link">
             <i class="bi bi-file-lock2"></i>
             Occupations
           </a>
         </li>
-        <li class="nav-item">
+        <li *requiredRole="'ADVANCE_READ'" class="nav-item">
           <a routerLink="/rent-advances" routerLinkActive="active" class="nav-link">
             <i class="bi bi-currency-exchange"></i>
-            Rent Advance
+            Rent Advances
           </a>
         </li>
-        <li class="nav-item">
+        <li *requiredRole="'NOTICE_READ'" class="nav-item">
           <a routerLink="/notices" routerLinkActive="active" class="nav-link">
             <i class="bi bi-bell-fill"></i>
-            Notice
+            Notices
           </a>
         </li>
-        <li class="nav-item">
+        <li *requiredRole="'PAYMENT_READ'" class="nav-item">
           <a routerLink="/payments" routerLinkActive="active" class="nav-link">
             <i class="bi bi-credit-card-2-back-fill"></i>
-            Payment
+            Payments
           </a>
         </li>
-        <li class="nav-item">
-          <a routerLink="/invoices" routerLinkActive="active" class="nav-link">
+        <li *requiredRole="'OCCUPATION_TRANSACTION_READ'" class="nav-item">
+          <a routerLink="/occupation-transactions" routerLinkActive="active" class="nav-link">
             <i class="bi bi-receipt"></i>
-            Invoices
+            Transactions
           </a>
         </li>
       </ul>
     </div>
     <!-- secondary menu -->
-    <div class="admin-menu">
-      <h5 class="sidenav-heading">User</h5>
+    <!-- <div class="admin-menu">
+      <h5 class="sidenav-heading">My Profile</h5>
       <ul class="nav flex-column">
         <li class="nav-item">
           <a routerLink="/profile" routerLinkActive="active" class="nav-link">
@@ -105,7 +105,7 @@
           </a>
         </li>
       </ul>
-    </div>
+    </div> -->
   </div>
 </nav>
 

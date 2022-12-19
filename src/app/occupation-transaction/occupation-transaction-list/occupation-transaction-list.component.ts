@@ -32,15 +32,15 @@ export class OccupationTransactionListComponent implements OnInit {
       'paymentId': [''],
     });
     this.createForm = this._fb.group({
+      'occupationId': ['', Validators.required],
       'type': ['', Validators.required],
       'transactionType': ['', Validators.required],
+      'receiptId': ['', Validators.required],
       'period': ['', Validators.required],
       'rentAmount': ['', Validators.required],
       'securityAmount': ['', Validators.required],
       'garbageAmount': ['', Validators.required],
       'otherAmounts': this._fb.array([this.otherAmountsForm]),
-      'occupationId': ['', Validators.required],
-      'paymentId': ['', Validators.required],
     });
     this.updateForm = this._fb.group({
       'occupationTransactionId': ['', Validators.required],

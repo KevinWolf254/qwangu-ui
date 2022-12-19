@@ -2,7 +2,7 @@
   <div class="container">
     <!-- create -->
     <div class="d-flex flex-row-reverse my-2">
-      <button type="button" class="btn btn-primary" (click)="open(createModal)">
+      <button *requiredRole="'USER_CREATE'" type="button" class="btn btn-primary" (click)="open(createModal)">
         <i class="bi bi-person-plus-fill"></i> Create
       </button>
     </div>

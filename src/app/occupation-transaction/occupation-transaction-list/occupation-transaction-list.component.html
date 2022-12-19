@@ -57,9 +57,9 @@
                   <th scope="col">Total Amount Owed</th>
                   <th scope="col">Total Amount Paid</th>
                   <th scope="col">Total Amount CarriedForward</th>
-                  <th scope="col">occupationId</th>
-                  <th scope="col">receivableId</th>
-                  <th scope="col">paymentId</th>
+                  <th scope="col">Occupation</th>
+                  <th scope="col">Invoice</th>
+                  <th scope="col">Receipt</th>
                   <th scope="col">Created On</th>
                   <th scope="col">Modified On</th>
                   <th scope="col">Actions</th>
@@ -96,13 +96,13 @@
                         </span>
                       </td>
                       <td>
-                        <span *ngIf="occupationTransactions?.receivableId; else noData;">
-                          {{ occupationTransactions?.receivableId | titlecase }}
+                        <span *ngIf="occupationTransactions?.invoiceId; else noData;">
+                          {{ occupationTransactions?.invoiceId | titlecase }}
                         </span>
                       </td>
                       <td>
-                        <span *ngIf="occupationTransactions?.paymentId; else noData;">
-                          {{ occupationTransactions?.paymentId | titlecase }}
+                        <span *ngIf="occupationTransactions?.receiptId; else noData;">
+                          {{ occupationTransactions?.receiptId | titlecase }}
                         </span>
                       </td>
                       <td>
@@ -181,13 +181,26 @@
     <form [formGroup]="createForm" (ngSubmit)="update(createForm)">
       <div class="row">
         <div class="col-12 mb-2">
+          <label for="occupationId" class="form-label">Occupation</label>
+          <select id="occupationId" class="form-select" formControlName="occupationId" aria-label="choose occupation">
+            <option value="">-- Choose Occupation --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+        <div class="col-12 mb-2">
           <label for="type" class="form-label">Type</label>
           <select id="type" class="form-select" formControlName="type" aria-label="choose type">
-            <option value="">-- Choose Occupation --</option>
+            <option value="">-- Choose Invoice Type --</option>
             <option value="RENT">RENT</option>
             <option value="PENALTY">PENALTY</option>
             <option value="BOOKING">BOOKING</option>
           </select>
+        </div>
+        <div class="col-12 mb-2">
+          <label for="period" class="form-label">Period</label>
+          <input formControlName="period" type="text" class="form-control" id="period" placeholder="Enter period">
         </div>
         <div class="col-12 mb-2">
           <label for="transactionType" class="form-label">Transaction</label>
@@ -197,9 +210,14 @@
             <option value="DEBIT">DEBIT</option>
           </select>
         </div>
-        <div class="col-12 mb-2">
-          <label for="period" class="form-label">Period</label>
-          <input formControlName="period" type="text" class="form-control" id="period" placeholder="Enter period">
+        <div class="col-12 col-lg-6 mb-2">
+          <label for="receiptId" class="form-label">Receipt</label>
+          <select id="receiptId" class="form-select" formControlName="receiptId" aria-label="choose payment">
+            <option value="">-- Choose Receipt --</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
         </div>
         <div class="col-12 mb-2">
           <label for="rentAmount" class="form-label">Rent Amount</label>
@@ -241,25 +259,6 @@
               </div>
             </form>
           </ng-container>
-        </div>
-
-        <div class="col-12 col-lg-6 mb-2">
-          <label for="occupationId" class="form-label">Occupation</label>
-          <select id="occupationId" class="form-select" formControlName="occupationId" aria-label="choose occupation">
-            <option value="">-- Choose Occupation --</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
-          </select>
-        </div>
-        <div class="col-12 col-lg-6 mb-2">
-          <label for="paymentId" class="form-label">Payment</label>
-          <select id="paymentId" class="form-select" formControlName="paymentId" aria-label="choose payment">
-            <option value="">-- Choose Payment --</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
-          </select>
         </div>
       </div>
     </form>
