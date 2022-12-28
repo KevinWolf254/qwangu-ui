@@ -1,7 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+import { debounceTime } from 'rxjs';
+
+import { Order } from 'src/app/shared/order.enum';
 import { Apartment } from '../model/apartment.model';
+import { ApartmentService } from '../apartment.service';
+import { ResponseDto } from 'src/app/shared/model/response-dto';
+import { UtilService } from 'src/app/shared/services/util.service';
+import { Pagination } from 'src/app/shared/model/pagination.model';
 
 @Component({
   selector: 'app-apartment-list',
@@ -9,33 +17,67 @@ import { Apartment } from '../model/apartment.model';
   styleUrls: ['./apartment-list.component.scss']
 })
 export class ApartmentListComponent implements OnInit {
+  public page: number = 1;
+  public pageSize: number = 10;
 
   public form: FormGroup;
+  private closeResult = '';
+  public isLoading: boolean;
   public createForm: FormGroup;
   public updateForm: FormGroup;
-  public isLoading: boolean;
   public apartments: Apartment[];
-  public deleteApartmentName: string;
-  private closeResult = '';
+  public apartment: Apartment;
+  public isSubmitting: boolean;
 
-  constructor(private _fb: FormBuilder, private _modalService: NgbModal) {
+  constructor(private _fb: FormBuilder, private _apartmentService: ApartmentService, private _util: UtilService,
+    private _modalService: NgbModal) {
+    this.isSubmitting = false;
+    this.apartment = new Apartment();
     this.form = this._fb.group({
-      'pageSize': ['10'],
+      'pageSize': ["" + this.pageSize],
       'name': []
     });
     this.createForm = this._fb.group({
-      'name': ['', Validators.required],
+      'name': ['', [Validators.required, Validators.pattern(this._util.alphabetWithSpace), Validators.minLength(5), Validators.maxLength(50)]],
     });
     this.updateForm = this._fb.group({
-      'name': ['', Validators.required],
+      'id': ['', Validators.required],
+      'name': ['', [Validators.required, Validators.pattern(this._util.alphabetWithSpace), Validators.minLength(5), Validators.maxLength(50)]],
     });
     this.isLoading = false;
-    let today = new Date();
-    this.apartments = [new Apartment("1", "NEW HEAVEN", today, '', today, '')];
-    this.deleteApartmentName = 'NEW HEAVEN';
-   }
+    this.apartments = [];
+    (this.form.get("pageSize") as AbstractControl).valueChanges.subscribe((value: number) => {
+      this.pageSize = value;
+    });
+    (this.form.get("name") as AbstractControl).valueChanges.pipe(
+      debounceTime(1000)
+    ).subscribe((value: string) => {
+      if (value)
+        this.find('', value, { page: 1, pageSize: 1000, order: Order.DESC })
+      else
+        this.find('', '', { page: 1, pageSize: 1000, order: Order.DESC })
+    });
+  }
 
   ngOnInit(): void {
+    this.find('', '', { page: 1, pageSize: 1000, order: Order.DESC })
+  }
+
+  private find(apartmentId: string, name: string, pagination: Pagination) {
+    this.apartments = [];
+    this.isLoading = true;
+    this._apartmentService.find(apartmentId, name, pagination)
+      .subscribe({
+        next: (response: ResponseDto<Array<Apartment>>) => {
+          this.apartments = response.data;
+        },
+        error: () => {
+          this.isLoading = false;
+        },
+        complete: () => {
+          this.isLoading = false;
+        }
+      });
   }
 
   private getDismissReason(reason: any): string {
@@ -49,7 +91,7 @@ export class ApartmentListComponent implements OnInit {
   }
 
   open(content: any) {
-    this._modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size: 'lg'}).result.then((result) => {
+    this._modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg', backdrop: 'static' }).result.then((result) => {
       this.closeResult = `Closed with: ${result}`;
     }, (reason) => {
       this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
@@ -60,19 +102,141 @@ export class ApartmentListComponent implements OnInit {
     this.open(content);
   }
 
-  openEdit(roleId: string | undefined, content: any) {
+  openEdit(apartment: Apartment, form: FormGroup, content: any) {
+    this.apartment = { ...apartment };
+    form.patchValue({
+      id: apartment ? apartment.id ? apartment.id.trim() : '' : '',
+      name: apartment ? apartment.name ? apartment.name.trim() : '' : '',
+    });
+
     this.open(content);
   }
 
-  openDelete(roleId: string | undefined, content: any) {
+  openDelete(apartment: Apartment, content: any) {
+    this.apartment = { ...apartment };
     this.open(content);
   }
 
-  public create(form: FormGroup) {
+  closeDelete(apartment: Apartment, modal: any) {
+    apartment = new Apartment();
+    modal.close('Save click');
+  }
+
+  public create(form: FormGroup, modal: any) {
+    console.log(form.value);
+    const { name } = form.value;
+    let apartment = new Apartment();
+    apartment.name = name;
+
+    this.isSubmitting = true;
+
+    this._apartmentService.create(apartment).subscribe({
+      next: (response: ResponseDto<Apartment>) => {
+        const { data } = response;
+        this.find('', '', { page: 1, pageSize: 1000, order: Order.DESC });
+        this.isSubmitting = false;
+        this.close(form, modal);
+      },
+      error: () => {
+        this.isSubmitting = false;
+      },
+      complete: () => {
+        this.isSubmitting = false;
+      }
+    });
+  }
+
+  public close(form: FormGroup, modal: any) {
+    form.reset();
+    modal.close('Save click');
+  }
+
+  public update(form: FormGroup, modal: any) {
+    console.log(form.value);
+    const { id, name } = form.value;
+    this.apartment.name = name;
+    this.isSubmitting = true;
+
+    this._apartmentService.update(id, this.apartment).subscribe({
+      next: (response: ResponseDto<Apartment>) => {
+        const { data } = response;
+        this.find('', '', { page: 1, pageSize: 1000, order: Order.DESC });
+        this.isSubmitting = false;
+        this.apartment = new Apartment();
+        this.close(form, modal);
+      },
+      error: () => {
+        this.isSubmitting = false;
+      },
+      complete: () => {
+        this.isSubmitting = false;
+      }
+    });
 
   }
 
-  public update(form: FormGroup) {
+  public delete(apartment: Apartment, modal: any) {
+    const { id } = apartment;
+    this.isSubmitting = true;
 
+    this._apartmentService.delete(id as string).subscribe({
+      next: () => {
+        this.find('', '', { page: 1, pageSize: 1000, order: Order.DESC });
+        this.isSubmitting = false;
+        this.closeDelete(apartment, modal);
+      },
+      error: () => {
+        this.isSubmitting = false;
+      },
+      complete: () => {
+        this.isSubmitting = false;
+      }
+    });
+  }
+
+  public findPosition(index: number, page: number, pageSize: number): number {
+    return this._util.findPosition(index, page, pageSize);
+  }
+
+  // create
+  public isCreateInValid(input: string, error: string): boolean {
+    return this.createForm.controls[input].hasError(error);
+  }
+  public isCreateTouched(input: string): boolean {
+    return this.createForm.controls[input].touched;
+  }
+
+  // name
+  public get isNameInvalid(): boolean {
+    return this.isCreateInValid('name', 'required') && this.isCreateTouched('name')
+  }
+  public get isNamePatternInvalid(): boolean {
+    return this.isCreateInValid('name', 'pattern') && this.isCreateTouched('name')
+  }
+  public get isNameMinLengthInvalid(): boolean {
+    return this.isCreateInValid('name', 'minlength') && this.isCreateTouched('name')
+  }
+  public get isNameMaxLengthInvalid(): boolean {
+    return this.isCreateInValid('name', 'maxlength') && this.isCreateTouched('name')
+  }
+
+  // update
+  public isUpdateInValid(input: string, error: string): boolean {
+    return this.updateForm.controls[input].hasError(error);
+  }
+  public isUpdateTouched(input: string): boolean {
+    return this.updateForm.controls[input].touched;
+  }
+  public get isUpdateNameInvalid(): boolean {
+    return this.isUpdateInValid('name', 'required') && this.isUpdateTouched('name')
+  }
+  public get isUpdateNamePatternInvalid(): boolean {
+    return this.isUpdateInValid('name', 'pattern') && this.isUpdateTouched('name')
+  }
+  public get isUpdateNameMinLengthInvalid(): boolean {
+    return this.isUpdateInValid('name', 'minlength') && this.isUpdateTouched('name')
+  }
+  public get isUpdateNameMaxLengthInvalid(): boolean {
+    return this.isUpdateInValid('name', 'maxlength') && this.isUpdateTouched('name')
   }
 }

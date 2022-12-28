@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { ApartmentRoutingModule } from './apartment-routing.module';
 import { ApartmentListComponent } from './apartment-list/apartment-list.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SharedModule } from '../shared/shared.module';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 
 @NgModule({
@@ -11,10 +13,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ApartmentListComponent
   ],
   imports: [
-    CommonModule,
-    ApartmentRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    CommonModule,
+    SharedModule,
+    NgxPaginationModule,
+    ReactiveFormsModule,
+    ApartmentRoutingModule,
   ]
 })
 export class ApartmentModule { }

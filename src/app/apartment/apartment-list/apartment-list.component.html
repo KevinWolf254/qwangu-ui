@@ -2,7 +2,8 @@
   <div class="container">
     <!-- create -->
     <div class="d-flex flex-row-reverse my-2">
-      <button type="button" class="btn btn-primary" (click)="openCreate(createModal)">
+      <button *requiredRole="'APARTMENT_CREATE'" type="button" class="btn btn-primary"
+        (click)="openCreate(createModal)">
         <i class="bi bi-person-plus-fill"></i> Create
       </button>
     </div>
@@ -47,8 +48,11 @@
               <tbody>
                 <ng-container *ngIf="!isLoading else loading;">
                   <ng-container *ngIf="apartments.length > 0 else noApartments;">
-                    <tr *ngFor="let apartment of apartments; let i = index;">
-                      <td>{{ i + 1 }}.</td>
+                    <tr
+                      *ngFor="let i = index; let apartment of apartments | paginate: { itemsPerPage: pageSize, currentPage: page }">
+                      <td>
+                        {{findPosition(i, page, pageSize)}}
+                      </td>
                       <td>
                         <span *ngIf="apartment?.name; else noData;">
                           {{ apartment?.name| titlecase }}
@@ -64,13 +68,17 @@
                         </span>
                       </td>
                       <td>
-                        <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
                           <!-- edit -->
-                          <button type="button" class="btn btn-action btn-outline-info" (click)="openEdit(apartment.id, updateModal)">
+                          <button *requiredRole="'APARTMENT_UPDATE'" type="button"
+                            class="btn btn-action btn-outline-info" style="margin-right: .5rem;"
+                            (click)="openEdit(apartment, updateForm, updateModal)">
                             <i class="bi bi-pencil-square"></i>
                           </button>
                           <!-- delete -->
-                          <button type="button" class="btn btn-action btn-outline-danger" (click)="openDelete(apartment.id, deleteModal)">
+                          <button *requiredRole="'APARTMENT_DELETE'" type="button"
+                            class="btn btn-action btn-outline-danger" style="margin-right: .5rem;"
+                            (click)="openDelete(apartment, deleteModal)">
                             <i class="bi bi-trash-fill"></i>
                           </button>
                         </div>
@@ -80,6 +88,7 @@
                 </ng-container>
               </tbody>
             </table>
+            <pagination-controls (pageChange)="page = $event"></pagination-controls>
           </div>
         </form>
       </div>
@@ -120,50 +129,112 @@
 </ng-template>
 
 <ng-template #createModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Apartment create</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-  </div>
-  <div class="modal-body">
-    <form [formGroup]="createForm" (ngSubmit)="create(createForm)">
+  <form [formGroup]="createForm" (ngSubmit)="create(createForm, modal)">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Apartment create</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="close(createForm, modal)"></button>
+    </div>
+    <div class="modal-body">
       <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <input formControlName="name" type="text" class="form-control" id="name" placeholder="Enter apartment name">
+        <label for="name" class="form-label">Apartment name</label>
+        <input formControlName="name" type="text" class="form-control" id="name" placeholder="Enter apartment name"
+          [class.is-invalid]="isNameInvalid || isNamePatternInvalid || isNameMinLengthInvalid || isNameMaxLengthInvalid">
       </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Create</button>
-  </div>
+      <!-- error -->
+      <ng-container *ngIf="isNameInvalid || isNamePatternInvalid || isNameMinLengthInvalid || isNameMaxLengthInvalid">
+        <small class="form-text text-danger float-left" *ngIf="isNameInvalid">
+          Apartment name is required.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isNamePatternInvalid">
+          Only alphabets and space is allowed.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isNameMinLengthInvalid">
+          Minimum length of 5 characters is allowed.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isNameMaxLengthInvalid">
+          Maximum length of 50 characters is allowed.
+        </small>
+      </ng-container>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-outline-success"
+        [disabled]="!createForm.valid || isSubmitting">
+        <span>Create</span>
+        <ng-container *ngIf="isSubmitting">
+          <span class="clearfix" style="margin-left: .75rem; width: 2rem; height: 2rem;">
+            <div class="spinner-border float-end" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </span>
+        </ng-container>
+      </button>
+    </div>
+  </form>
 </ng-template>
 
 <ng-template #updateModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Apartment update</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-  </div>
-  <div class="modal-body">
-    <form [formGroup]="updateForm" (ngSubmit)="update(updateForm)">
+  <form [formGroup]="updateForm" (ngSubmit)="update(updateForm, modal)">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Apartment update</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="close(updateForm, modal)"></button>
+    </div>
+    <div class="modal-body">
       <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <input formControlName="name" type="text" class="form-control" id="name" placeholder="Enter apartment name">
+        <label for="name" class="form-label">Apartment name</label>
+        <input formControlName="name" type="text" class="form-control" id="name" placeholder="Enter apartment name"
+          [class.is-invalid]="isUpdateNameInvalid || isUpdateNamePatternInvalid || isUpdateNameMinLengthInvalid || isUpdateNameMaxLengthInvalid">
       </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
-  </div>
+      <!-- error -->
+      <ng-container *ngIf="isUpdateNameInvalid || isUpdateNamePatternInvalid || isUpdateNameMinLengthInvalid || isUpdateNameMaxLengthInvalid">
+        <small class="form-text text-danger float-left" *ngIf="isUpdateNameInvalid">
+          Apartment name is required.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isUpdateNamePatternInvalid">
+          Only alphabets and space is allowed.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isUpdateNameMinLengthInvalid">
+          Minimum length of 5 characters is allowed.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isUpdateNameMaxLengthInvalid">
+          Maximum length of 50 characters is allowed.
+        </small>
+      </ng-container>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-outline-success"
+        [disabled]="!updateForm.valid || isSubmitting">
+        <span>Update</span>
+        <ng-container *ngIf="isSubmitting">
+          <span class="clearfix" style="margin-left: .75rem; width: 2rem; height: 2rem;">
+            <div class="spinner-border float-end" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </span>
+        </ng-container>
+      </button>
+    </div>
+  </form>
 </ng-template>
 
 <ng-template #deleteModal let-modal>
   <div class="modal-header">
     <h4 class="modal-title" id="modal-basic-title">User delete</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    <button type="button" class="btn-close" aria-label="Close" (click)="closeDelete(apartment, modal)"></button>
   </div>
   <div class="modal-body">
-    Are you sure you want to delete {{deleteApartmentName}}?
+    Are you sure you want to delete {{apartment.name}}?
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
+    <button type="button" class="btn btn-outline-success"
+      [disabled]="!apartment|| isSubmitting" (click)="delete(apartment, modal)">
+      <span>Delete</span>
+      <ng-container *ngIf="isSubmitting">
+        <span class="clearfix" style="margin-left: .75rem; width: 2rem; height: 2rem;">
+          <div class="spinner-border float-end" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </span>
+      </ng-container>
+    </button>
   </div>
 </ng-template>
