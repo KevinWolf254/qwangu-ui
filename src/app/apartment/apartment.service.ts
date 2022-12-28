@@ -28,11 +28,9 @@ export class ApartmentService {
     return this._http.post<ResponseDto<Apartment>>(`${this.url}/v1/apartments`, apartment);
   }
 
-  public find(apartmentId: string, name: string, pagination: Pagination): Observable<ResponseDto<Array<Apartment>>> {
-    const {order} = pagination;
+  public find(name: string, order: Order): Observable<ResponseDto<Array<Apartment>>> {
 
     const parameters = new HttpParams()
-      .set('apartmentId', apartmentId ? apartmentId : '')
       .set('name', name ? name : '')
       .set('order', order ? order : Order.DESC);
 

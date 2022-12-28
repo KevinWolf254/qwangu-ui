@@ -53,20 +53,20 @@ export class ApartmentListComponent implements OnInit {
       debounceTime(1000)
     ).subscribe((value: string) => {
       if (value)
-        this.find('', value, { page: 1, pageSize: 1000, order: Order.DESC })
+        this.find(value, Order.DESC)
       else
-        this.find('', '', { page: 1, pageSize: 1000, order: Order.DESC })
+        this.find('', Order.DESC)
     });
   }
 
   ngOnInit(): void {
-    this.find('', '', { page: 1, pageSize: 1000, order: Order.DESC })
+    this.find('', Order.DESC)
   }
 
-  private find(apartmentId: string, name: string, pagination: Pagination) {
+  private find(name: string, order: Order) {
     this.apartments = [];
     this.isLoading = true;
-    this._apartmentService.find(apartmentId, name, pagination)
+    this._apartmentService.find(name, order)
       .subscribe({
         next: (response: ResponseDto<Array<Apartment>>) => {
           this.apartments = response.data;
@@ -133,7 +133,7 @@ export class ApartmentListComponent implements OnInit {
     this._apartmentService.create(apartment).subscribe({
       next: (response: ResponseDto<Apartment>) => {
         const { data } = response;
-        this.find('', '', { page: 1, pageSize: 1000, order: Order.DESC });
+        this.find('', Order.DESC)
         this.isSubmitting = false;
         this.close(form, modal);
       },
@@ -152,7 +152,6 @@ export class ApartmentListComponent implements OnInit {
   }
 
   public update(form: FormGroup, modal: any) {
-    console.log(form.value);
     const { id, name } = form.value;
     this.apartment.name = name;
     this.isSubmitting = true;
@@ -160,7 +159,7 @@ export class ApartmentListComponent implements OnInit {
     this._apartmentService.update(id, this.apartment).subscribe({
       next: (response: ResponseDto<Apartment>) => {
         const { data } = response;
-        this.find('', '', { page: 1, pageSize: 1000, order: Order.DESC });
+        this.find('', Order.DESC)
         this.isSubmitting = false;
         this.apartment = new Apartment();
         this.close(form, modal);
@@ -181,7 +180,7 @@ export class ApartmentListComponent implements OnInit {
 
     this._apartmentService.delete(id as string).subscribe({
       next: () => {
-        this.find('', '', { page: 1, pageSize: 1000, order: Order.DESC });
+        this.find('', Order.DESC)
         this.isSubmitting = false;
         this.closeDelete(apartment, modal);
       },
