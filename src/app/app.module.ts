@@ -9,7 +9,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { ToastrModule } from 'ngx-toastr';
 import { AppComponent } from './app.component';
-import { NgxPaginationModule } from 'ngx-pagination';
 import { SharedModule } from './shared/shared.module';
 import { AppRoutingModule } from './app-routing.module';
 import { SignInComponent } from './sign-in/sign-in.component';
@@ -31,7 +30,6 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
-    NgxPaginationModule,
     ReactiveFormsModule,
     ToastrModule.forRoot(), // ToastrModule added,
     BrowserAnimationsModule,
