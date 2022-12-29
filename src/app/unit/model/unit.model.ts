@@ -2,6 +2,8 @@ export class Unit {
   constructor(
     public id?: string,
     public status?: UnitStatus,
+    public isBooked?: boolean,
+    public accountNo?: string,
     public type?: UnitType,
     public identifier?: UnitIdentifier,
     public floorNo?: number,
@@ -12,6 +14,7 @@ export class Unit {
     public rentPerMonth?: number,
     public garbagePerMonth?: number,
     public securityPerMonth?: number,
+    public otherAmounts?: Map<string, number>,
     public apartmentId?: string,
     public createdOn?: Date,
     public createdBy?: string,

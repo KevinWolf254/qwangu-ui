@@ -18,7 +18,6 @@ export class RequestInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const url = request.url;
-    console.log("URL " ,url);
 
     if (url === `${this.url}/v1/signIn`)
         return next.handle(request);

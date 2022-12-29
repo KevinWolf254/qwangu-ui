@@ -9,7 +9,6 @@ import { Apartment } from '../model/apartment.model';
 import { ApartmentService } from '../apartment.service';
 import { ResponseDto } from 'src/app/shared/model/response-dto';
 import { UtilService } from 'src/app/shared/services/util.service';
-import { Pagination } from 'src/app/shared/model/pagination.model';
 
 @Component({
   selector: 'app-apartment-list',
@@ -20,7 +19,7 @@ export class ApartmentListComponent implements OnInit {
   public page: number = 1;
   public pageSize: number = 10;
 
-  public form: FormGroup;
+  public searchForm: FormGroup;
   private closeResult = '';
   public isLoading: boolean;
   public createForm: FormGroup;
@@ -33,7 +32,7 @@ export class ApartmentListComponent implements OnInit {
     private _modalService: NgbModal) {
     this.isSubmitting = false;
     this.apartment = new Apartment();
-    this.form = this._fb.group({
+    this.searchForm = this._fb.group({
       'pageSize': ["" + this.pageSize],
       'name': []
     });
@@ -46,10 +45,14 @@ export class ApartmentListComponent implements OnInit {
     });
     this.isLoading = false;
     this.apartments = [];
-    (this.form.get("pageSize") as AbstractControl).valueChanges.subscribe((value: number) => {
+  }
+
+  ngOnInit(): void {
+    this.find('', Order.DESC);
+    (this.searchForm.get("pageSize") as AbstractControl).valueChanges.subscribe((value: number) => {
       this.pageSize = value;
     });
-    (this.form.get("name") as AbstractControl).valueChanges.pipe(
+    (this.searchForm.get("name") as AbstractControl).valueChanges.pipe(
       debounceTime(1000)
     ).subscribe((value: string) => {
       if (value)
@@ -57,10 +60,6 @@ export class ApartmentListComponent implements OnInit {
       else
         this.find('', Order.DESC)
     });
-  }
-
-  ngOnInit(): void {
-    this.find('', Order.DESC)
   }
 
   private find(name: string, order: Order) {

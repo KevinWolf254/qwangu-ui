@@ -2,14 +2,14 @@
   <div class="container">
     <!-- create -->
     <div class="d-flex flex-row-reverse my-2">
-      <button type="button" class="btn btn-primary" (click)="open(createModal)">
+      <button *requiredRole="'TENANT_CREATE'" type="button" class="btn btn-primary" (click)="open(createModal)">
         <i class="bi bi-person-plus-fill"></i> Create
       </button>
     </div>
     <!-- list -->
     <div class="card">
       <div class="card-body">
-        <form autocomplete="off" [formGroup]="form">
+        <form autocomplete="off" [formGroup]="searchForm">
           <div class="d-flex justify-content-between">
             <!-- page size -->
             <div class="row flex-fill mb-3">
@@ -32,76 +32,81 @@
               </div>
             </div>
           </div>
-          <!-- users table -->
-          <div class="table-responsive">
-            <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Full Names</th>
-                  <th scope="col">MobileNo.</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Created On</th>
-                  <th scope="col">Modified On</th>
-                  <th scope="col">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <ng-container *ngIf="!isLoading else loading;">
-                  <ng-container *ngIf="tenants.length > 0 else noUsers;">
-                    <!-- <tr *ngFor="let user of users | paginate: { itemsPerPage: PAGE_SIZE, currentPage: PAGE } let i = index;"> -->
-                    <tr *ngFor="let tenant of tenants; let i = index;">
-                      <td>{{ i + 1 }}.</td>
-                      <td>
-                        <span *ngIf="tenant?.firstName; else noData;">
-                          {{ tenant?.firstName| titlecase }}
-                        </span>
-                        <span *ngIf="tenant?.middleName; else noData;">
-                          {{ tenant?.middleName| titlecase }}
-                        </span>
-                        <span *ngIf="tenant?.surname; else noData;">
-                          {{ tenant?.surname| titlecase }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="tenant?.mobileNumber; else noData;">
-                          {{ tenant?.mobileNumber| titlecase }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="tenant?.emailAddress; else noData;">
-                          {{ tenant?.emailAddress| titlecase }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="tenant?.createdOn; else noData;">
-                          {{ tenant?.createdOn | date:'mediumDate' }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="tenant?.modifiedOn; else noData;">
-                          {{ tenant?.modifiedOn | date:'mediumDate' }}
-                        </span>
-                      </td>
-                      <td>
-                        <div class="d-flex align-items-center justify-content-between">
-                          <!-- edit -->
-                          <button type="button" class="btn btn-action btn-outline-info" (click)="openEdit(tenant.id, updateModal)">
-                            <i class="bi bi-pencil-square"></i>
-                          </button>
-                          <!-- delete -->
-                          <button type="button" class="btn btn-action btn-outline-danger" (click)="openDelete(tenant.id, deleteModal)">
-                            <i class="bi bi-trash-fill"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  </ng-container>
-                </ng-container>
-              </tbody>
-            </table>
-          </div>
         </form>
+        <!-- users table -->
+        <div class="table-responsive">
+          <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Full Names</th>
+                <th scope="col">MobileNo.</th>
+                <th scope="col">Email</th>
+                <th scope="col">Created On</th>
+                <th scope="col">Modified On</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngIf="!isLoading else loading;">
+                <ng-container *ngIf="tenants.length > 0 else noUsers;">
+                  <tr *ngFor=" let i = index; let tenant of tenants | slice: (page-1) * pageSize : page * pageSize">
+                    <td>
+                      {{findPosition(i, page, pageSize)}}
+                    </td>
+                    <td>
+                      <span *ngIf="tenant?.firstName; else noData;">
+                        {{ tenant?.firstName| titlecase }}
+                      </span>
+                      <span *ngIf="tenant?.middleName; else noData;">
+                        {{ tenant?.middleName| titlecase }}
+                      </span>
+                      <span *ngIf="tenant?.surname; else noData;">
+                        {{ tenant?.surname| titlecase }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="tenant?.mobileNumber; else noData;">
+                        {{ tenant?.mobileNumber| titlecase }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="tenant?.emailAddress; else noData;">
+                        {{ tenant?.emailAddress| titlecase }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="tenant?.createdOn; else noData;">
+                        {{ tenant?.createdOn | date:'mediumDate' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="tenant?.modifiedOn; else noData;">
+                        {{ tenant?.modifiedOn | date:'mediumDate' }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <!-- edit -->
+                        <button *requiredRole="'TENANT_UPDATE'" type="button" class="btn btn-action btn-outline-info"
+                          (click)="openEdit(tenant, updateForm, updateModal)">
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <!-- delete -->
+                        <button *requiredRole="'TENANT_DELETE'" type="button" class="btn btn-action btn-outline-danger"
+                          (click)="openDelete(tenant, deleteModal)">
+                          <i class="bi bi-trash-fill"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+              </ng-container>
+            </tbody>
+          </table>
+          <ngb-pagination class="d-flex justify-content-center" [(page)]="page" [pageSize]="pageSize"
+            [collectionSize]="tenants.length"></ngb-pagination>
+        </div>
       </div>
     </div>
   </div>
@@ -115,7 +120,7 @@
   <tr>
     <td colspan="11">
       <span style="font-style: italic; padding: 0.25rem 0.25rem; color: red;">
-        No users have been found.
+        No tenants have been found.
       </span>
     </td>
   </tr>
@@ -139,78 +144,274 @@
 </ng-template>
 
 <ng-template #createModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">User create</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-  </div>
-  <div class="modal-body">
-    <form [formGroup]="createForm" (ngSubmit)="create(createForm)">
-      <div class="mb-3">
-        <label for="emailAddress" class="form-label">Email Address</label>
-        <input formControlName="emailAddress" type="text" class="form-control" id="emailAddress" placeholder="Enter email address">
-      </div>
+  <form [formGroup]="createForm" (ngSubmit)="create(createForm, modal)">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Tenant create</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="close(createForm, modal)"></button>
+    </div>
+    <div class="modal-body">
       <div class="row mb-3">
-        <div class="col-6">
-          <label for="fname" class="form-label">First Name</label>
-          <input formControlName="fname" type="text" class="form-control" id="fname" placeholder="Enter first name">
+        <div class="col-sm-12 col-md-6">
+          <label for="firstName" class="form-label">First Name</label>
+          <input formControlName="firstName" type="text" class="form-control" id="firstName"
+            placeholder="Enter first name"
+            [class.is-invalid]="isFirstNameInvalid || isFirstNamePatternInvalid || isFirstNameMinLengthInvalid || isFirstNameMaxLengthInvalid">
+          <!-- error -->
+          <ng-container
+            *ngIf="isFirstNameInvalid || isFirstNamePatternInvalid || isFirstNameMinLengthInvalid || isFirstNameMaxLengthInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isFirstNameInvalid">
+              First name is required.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isFirstNamePatternInvalid">
+              Only alphabets are allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isFirstNameMinLengthInvalid">
+              Minimum length of 5 characters is allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isFirstNameMaxLengthInvalid">
+              Maximum length of 25 characters is allowed.
+            </small>
+          </ng-container>
         </div>
-        <div class="col-6">
-          <label for="oName" class="form-label">Other Names</label>
-          <input formControlName="oName" type="text" class="form-control" id="oName" placeholder="Enter other names">
+        <div class="col-sm-12 col-md-6">
+          <label for="otherNames" class="form-label">Other Names</label>
+          <input formControlName="otherNames" type="text" class="form-control" id="otherNames"
+            placeholder="Enter other names"
+            [class.is-invalid]="isOtherNamesPatternInvalid || isOtherNamesMinLengthInvalid || isOtherNamesMaxLengthInvalid">
+          <!-- error -->
+          <ng-container
+            *ngIf="isOtherNamesPatternInvalid || isOtherNamesMinLengthInvalid || isOtherNamesMaxLengthInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isOtherNamesPatternInvalid">
+              Only alphabets are allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isOtherNamesMinLengthInvalid">
+              Minimum length of 5 characters is allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isOtherNamesMaxLengthInvalid">
+              Maximum length of 25 characters is allowed.
+            </small>
+          </ng-container>
         </div>
-        <div class="col-12">
+        <div class="col-sm-12 col-md-6">
           <label for="surname" class="form-label">Surname</label>
-          <input formControlName="surname" type="text" class="form-control" id="surname" placeholder="Enter surname">
+          <input formControlName="surname" type="text" class="form-control" id="surname" placeholder="Enter surname"
+          [class.is-invalid]="isSurnameInvalid || isSurnamePatternInvalid || isSurnameMinLengthInvalid || isSurnameMaxLengthInvalid">
+        <!-- error -->
+        <ng-container
+          *ngIf="isSurnameInvalid || isSurnamePatternInvalid || isSurnameMinLengthInvalid || isSurnameMaxLengthInvalid">
+          <small class="form-text text-danger float-left" *ngIf="isSurnameInvalid">
+            Surname is required.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isSurnamePatternInvalid">
+            Only alphabets are allowed.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isSurnameMinLengthInvalid">
+            Minimum length of 5 characters is allowed.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isSurnameMaxLengthInvalid">
+            Maximum length of 25 characters is allowed.
+          </small>
+        </ng-container>
+        </div>
+        <div class="col-sm-12 col-md-6">
+          <label for="mobileNo" class="form-label">Mobile No.</label>
+          <input formControlName="mobileNo" type="text" class="form-control" id="mobileNo" placeholder="Enter mobile No."
+          [class.is-invalid]="isMobileNoInvalid || isMobileNoPatternInvalid || isMobileNoMinLengthInvalid || isMobileNoMaxLengthInvalid">
+        <!-- error -->
+        <ng-container
+          *ngIf="isMobileNoInvalid || isMobileNoPatternInvalid || isMobileNoMinLengthInvalid || isMobileNoMaxLengthInvalid">
+          <small class="form-text text-danger float-left" *ngIf="isMobileNoInvalid">
+            Mobile No. is required.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isMobileNoPatternInvalid">
+            Only alphabets are allowed.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isMobileNoMinLengthInvalid">
+            Minimum length of 5 characters is allowed.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isMobileNoMaxLengthInvalid">
+            Maximum length of 25 characters is allowed.
+          </small>
+        </ng-container>
+        </div>
+        <div class="col-sm-12 col-md-6">
+          <label for="emailAddress" class="form-label">Email Address</label>
+          <input formControlName="emailAddress" type="text" class="form-control" id="emailAddress"
+            placeholder="Enter email address"
+            [class.is-invalid]="isEmailAddressInvalid || isEmailAddressPatternInvalid || isEmailAddressMinLengthInvalid || isEmailAddressMaxLengthInvalid">
+          <!-- error -->
+          <ng-container
+            *ngIf="isEmailAddressInvalid || isEmailAddressPatternInvalid || isEmailAddressMinLengthInvalid || isEmailAddressMaxLengthInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isEmailAddressInvalid">
+              Email address is required.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isEmailAddressPatternInvalid">
+              Only alphabets are allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isEmailAddressMinLengthInvalid">
+              Minimum length of 5 characters is allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isEmailAddressMaxLengthInvalid">
+              Maximum length of 25 characters is allowed.
+            </small>
+          </ng-container>
         </div>
       </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Create</button>
-  </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-outline-success" [disabled]="!createForm.valid || isSubmitting">
+        <span>Create</span>
+        <ng-container *ngIf="isSubmitting">
+          <span class="clearfix" style="margin-left: .75rem; width: 2rem; height: 2rem;">
+            <div class="spinner-border float-end" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </span>
+        </ng-container>
+      </button>
+    </div>
+  </form>
 </ng-template>
 
 <ng-template #updateModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">User update</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  <form [formGroup]="updateForm" (ngSubmit)="update(updateForm, modal)">
+    <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Tenant update</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="close(updateForm, modal)"></button>
   </div>
   <div class="modal-body">
-    <form [formGroup]="updateForm" (ngSubmit)="update(updateForm)">
-      <div class="mb-3">
-        <label for="userId" class="form-label">User ID</label>
-        <input formControlName="userId" type="text" class="form-control" id="userId" placeholder="Enter role id">
+    <div class="row">
+      <div class="col-sm-12 col-md-6">
+        <label for="firstName" class="form-label">First Name</label>
+        <input formControlName="firstName" type="text" class="form-control" id="firstName"
+          placeholder="Enter first name"
+          [class.is-invalid]="isUpdateFirstNameInvalid || isUpdateFirstNamePatternInvalid || isUpdateFirstNameMinLengthInvalid || isUpdateFirstNameMaxLengthInvalid">
+        <!-- error -->
+        <ng-container
+          *ngIf="isUpdateFirstNameInvalid || isUpdateFirstNamePatternInvalid || isUpdateFirstNameMinLengthInvalid || isUpdateFirstNameMaxLengthInvalid">
+          <small class="form-text text-danger float-left" *ngIf="isUpdateFirstNameInvalid">
+            First name is required.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isUpdateFirstNamePatternInvalid">
+            Only alphabets are allowed.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isUpdateFirstNameMinLengthInvalid">
+            Minimum length of 5 characters is allowed.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isUpdateFirstNameMaxLengthInvalid">
+            Maximum length of 25 characters is allowed.
+          </small>
+        </ng-container>
       </div>
-      <div class="row my-3">
-        <div class="col-6">
-          <label for="fname" class="form-label">First Name</label>
-          <input formControlName="fname" type="text" class="form-control" id="fname" placeholder="Enter first name">
-        </div>
-        <div class="col-6">
-          <label for="oName" class="form-label">Other Names</label>
-          <input formControlName="oName" type="text" class="form-control" id="oName" placeholder="Enter other names">
-        </div>
-        <div class="col-12">
-          <label for="surname" class="form-label">Surname</label>
-          <input formControlName="surname" type="text" class="form-control" id="surname" placeholder="Enter surname">
-        </div>
+      <div class="col-sm-12 col-md-6">
+        <label for="otherNames" class="form-label">Other Names</label>
+        <input formControlName="otherNames" type="text" class="form-control" id="otherNames"
+          placeholder="Enter other names"
+          [class.is-invalid]="isUpdateOtherNamesPatternInvalid || isUpdateOtherNamesMinLengthInvalid || isUpdateOtherNamesMaxLengthInvalid">
+        <!-- error -->
+        <ng-container
+          *ngIf="isUpdateOtherNamesPatternInvalid || isUpdateOtherNamesMinLengthInvalid || isUpdateOtherNamesMaxLengthInvalid">
+          <small class="form-text text-danger float-left" *ngIf="isUpdateOtherNamesPatternInvalid">
+            Only alphabets are allowed.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isUpdateOtherNamesMinLengthInvalid">
+            Minimum length of 5 characters is allowed.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isUpdateOtherNamesMaxLengthInvalid">
+            Maximum length of 25 characters is allowed.
+          </small>
+        </ng-container>
       </div>
-    </form>
+      <div class="col-sm-12 col-md-6">
+        <label for="surname" class="form-label">Surname</label>
+        <input formControlName="surname" type="text" class="form-control" id="surname" placeholder="Enter surname"
+        [class.is-invalid]="isUpdateSurnameInvalid || isUpdateSurnamePatternInvalid || isUpdateSurnameMinLengthInvalid || isUpdateSurnameMaxLengthInvalid">
+      <!-- error -->
+      <ng-container
+        *ngIf="isUpdateSurnameInvalid || isUpdateSurnamePatternInvalid || isUpdateSurnameMinLengthInvalid || isUpdateSurnameMaxLengthInvalid">
+        <small class="form-text text-danger float-left" *ngIf="isUpdateSurnameInvalid">
+          Surname is required.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isUpdateSurnamePatternInvalid">
+          Only alphabets are allowed.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isUpdateSurnameMinLengthInvalid">
+          Minimum length of 5 characters is allowed.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isUpdateSurnameMaxLengthInvalid">
+          Maximum length of 25 characters is allowed.
+        </small>
+      </ng-container>
+      </div>
+      <div class="col-sm-12 col-md-6">
+        <label for="mobileNo" class="form-label">Mobile No.</label>
+        <input formControlName="mobileNo" type="text" class="form-control" id="mobileNo" placeholder="Enter mobile No."
+        [class.is-invalid]="isUpdateMobileNoInvalid || isUpdateMobileNoPatternInvalid || isUpdateMobileNoMinLengthInvalid || isUpdateMobileNoMaxLengthInvalid">
+      <!-- error -->
+      <ng-container
+        *ngIf="isUpdateMobileNoInvalid || isUpdateMobileNoPatternInvalid || isUpdateMobileNoMinLengthInvalid || isUpdateMobileNoMaxLengthInvalid">
+        <small class="form-text text-danger float-left" *ngIf="isUpdateMobileNoInvalid">
+          Mobile No. is required.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isUpdateMobileNoPatternInvalid">
+          Only alphabets are allowed.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isUpdateMobileNoMinLengthInvalid">
+          Minimum length of 5 characters is allowed.
+        </small>
+        <small class="form-text text-danger float-left" *ngIf="isUpdateMobileNoMaxLengthInvalid">
+          Maximum length of 25 characters is allowed.
+        </small>
+      </ng-container>
+      </div>
+      <div class="col-sm-12 col-md-6">
+        <label for="emailAddress" class="form-label">Email Address</label>
+        <input formControlName="emailAddress" type="text" class="form-control" id="emailAddress"
+          placeholder="Enter email address"
+          [class.is-invalid]="isUpdateEmailAddressInvalid || isUpdateEmailAddressPatternInvalid || isUpdateEmailAddressMinLengthInvalid || isUpdateEmailAddressMaxLengthInvalid">
+        <!-- error -->
+        <ng-container
+          *ngIf="isUpdateEmailAddressInvalid || isUpdateEmailAddressPatternInvalid || isUpdateEmailAddressMinLengthInvalid || isUpdateEmailAddressMaxLengthInvalid">
+          <small class="form-text text-danger float-left" *ngIf="isUpdateEmailAddressInvalid">
+            Email address is required.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isUpdateEmailAddressPatternInvalid">
+            Only alphabets are allowed.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isUpdateEmailAddressMinLengthInvalid">
+            Minimum length of 5 characters is allowed.
+          </small>
+          <small class="form-text text-danger float-left" *ngIf="isUpdateEmailAddressMaxLengthInvalid">
+            Maximum length of 25 characters is allowed.
+          </small>
+        </ng-container>
+      </div>
+    </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
+    <button type="submit" class="btn btn-outline-success" [disabled]="!updateForm.valid || isSubmitting">
+      <span>Update</span>
+      <ng-container *ngIf="isSubmitting">
+        <span class="clearfix" style="margin-left: .75rem; width: 2rem; height: 2rem;">
+          <div class="spinner-border float-end" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </span>
+      </ng-container>
+    </button>
   </div>
+</form>
 </ng-template>
 
 <ng-template #deleteModal let-modal>
   <div class="modal-header">
     <h4 class="modal-title" id="modal-basic-title">User delete</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    <button type="button" class="btn-close" aria-label="Close" (click)="closeDelete(tenant, modal)"></button>
   </div>
   <div class="modal-body">
-    Are you sure you want to delete {{deleteTenantName}}?
+    Are you sure you want to delete the tenant {{tenant.firstName}}{{tenant.middleName}}{{tenant.surname}}?
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
+    <button type="button" class="btn btn-outline-danger" (click)="delete(tenant, modal)">Delete</button>
   </div>
 </ng-template>

@@ -25,7 +25,6 @@ export class TokenInterceptor implements HttpInterceptor {
         tap(event => {
           if (event instanceof HttpResponse) {
             const isSignIn = request.url === `${this.url}/v1/signIn`;
-            console.log(isSignIn);
             // create token if request matches 'signin'
             if (isSignIn) {
               let tokenResponse = event.body as ResponseDto<AuthDto>;

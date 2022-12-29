@@ -2,14 +2,14 @@
   <div class="container">
     <!-- create -->
     <div class="d-flex flex-row-reverse my-2">
-      <button type="button" class="btn btn-primary" (click)="openCreate(createModal)">
+      <button *requiredRole="'UNIT_CREATE'" type="button" class="btn btn-primary" (click)="openCreate(createModal)">
         <i class="bi bi-person-plus-fill"></i> Create
       </button>
     </div>
     <!-- list -->
     <div class="card">
       <div class="card-body">
-        <form autocomplete="off" [formGroup]="form">
+        <form autocomplete="off" [formGroup]="searchForm">
           <div class="d-flex justify-content-between">
             <!-- page size -->
             <div class="row flex-fill mb-3">
@@ -27,118 +27,126 @@
             <div class="row flex-fill mb-3">
               <label for="search" class="col-sm-3 col-md-2 col-form-label">Search</label>
               <div class="col-sm-9 col-md-10">
-                <input id="search" class="form-control" type="text" placeholder="Enter unit identifier"
-                  aria-label="unit identifier" formControlName="name">
+                <div class="input-group">
+                  <select class="form-select form-select-sm" formControlName="apartmentId" aria-label="apartments"
+                    aria-describedby="apartmentIcon">
+                    <option value="">--- Choose Apartment ---</option>
+                    <ng-container *ngFor="let apartment of apartments">
+                      <option [value]="apartment.id">{{apartment.name| uppercase}}</option>
+                    </ng-container>
+                  </select>
+                  <input formControlName="accountNo" class="form-control" type="text" placeholder="Enter account number"
+                    aria-label="accountNo">
+                </div>
               </div>
             </div>
           </div>
-          <!-- users table -->
-          <div class="table-responsive">
-            <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Identifier</th>
-                  <th scope="col">FloorNo</th>
-                  <th scope="col">Bedrooms</th>
-                  <th scope="col">Bathrooms</th>
-                  <th scope="col">Advance</th>
-                  <th scope="col">Rent</th>
-                  <th scope="col">Garbage</th>
-                  <th scope="col">Apartment</th>
-                  <th scope="col">Created On</th>
-                  <th scope="col">Modified On</th>
-                  <th scope="col">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <ng-container *ngIf="!isLoading else loading;">
-                  <ng-container *ngIf="units.length > 0 else noApartments;">
-                    <tr *ngFor="let unit of units; let i = index;">
-                      <td>{{ i + 1 }}.</td>
-                      <td>
-                        <span *ngIf="unit?.status; else noData;">
-                          {{ unit?.status| titlecase }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="unit?.type; else noData;">
-                          {{ unit?.type| titlecase }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="unit?.identifier; else noData;">
-                          {{ unit?.identifier| titlecase }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="unit?.floorNo != null && unit?.floorNo != undefined; else noData;">
-                          {{ unit?.floorNo }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="unit?.noOfBedrooms != null && unit?.noOfBedrooms != undefined; else noData;">
-                          {{ unit?.noOfBedrooms }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="unit?.noOfBathrooms != null && unit?.noOfBathrooms != undefined; else noData;">
-                          {{ unit?.noOfBathrooms }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="unit?.advanceInMonths != null && unit?.advanceInMonths != undefined; else noData;">
-                          {{ unit?.advanceInMonths }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="unit?.rentPerMonth != null && unit?.rentPerMonth != undefined; else noData;">
-                          {{ unit?.currency| titlecase }} {{ unit?.rentPerMonth }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="unit?.garbagePerMonth; else noData;">
-                          {{ unit?.currency| titlecase }} {{ unit?.garbagePerMonth }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="unit?.apartmentId; else noData;">
-                          {{ unit?.apartmentId }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="unit?.createdOn; else noData;">
-                          {{ unit?.createdOn | date:'mediumDate' }}
-                        </span>
-                      </td>
-                      <td>
-                        <span *ngIf="unit?.modifiedOn; else noData;">
-                          {{ unit?.modifiedOn | date:'mediumDate' }}
-                        </span>
-                      </td>
-                      <td>
-                        <div class="d-flex align-items-center justify-content-between">
-                          <!-- edit -->
-                          <button type="button" class="btn btn-action btn-outline-info"
-                            (click)="openEdit(unit.id, updateModal)">
-                            <i class="bi bi-pencil-square"></i>
-                          </button>
-                          <!-- delete -->
-                          <button type="button" class="btn btn-action btn-outline-danger"
-                            (click)="openDelete(unit.id, deleteModal)">
-                            <i class="bi bi-trash-fill"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  </ng-container>
-                </ng-container>
-              </tbody>
-            </table>
-          </div>
         </form>
+        <!-- users table -->
+        <div class="table-responsive">
+          <table class="table table-hover" [ngClass]="{'table-striped': !isLoading}">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Apartment</th>
+                <th scope="col">Type</th>
+                <th scope="col">Acct No.</th>
+                <th scope="col">Unit No.</th>
+                <th scope="col">Bed</th>
+                <th scope="col">Bath</th>
+                <th scope="col">Advance</th>
+                <th scope="col">Rent</th>
+                <th scope="col">Security</th>
+                <th scope="col">Garbage</th>
+                <th scope="col">Status</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngIf="!isLoading else loading;">
+                <ng-container *ngIf="units.length > 0 else noApartments;">
+                  <tr *ngFor="let i = index; let unit of units | slice: (page-1) * pageSize : page * pageSize">
+                    <td>
+                      {{findPosition(i, page, pageSize)}}
+                    </td>
+                    <td>
+                      <span *ngIf="unit?.apartmentId; else noData;">
+                        {{ findApartmentName(unit?.apartmentId) | titlecase}}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="unit?.type; else noData;">
+                        {{ unit?.type?.split('_')?.join(' ') | uppercase }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="unit?.accountNo; else noData;">
+                        {{ unit?.accountNo | uppercase }}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        *ngIf="unit?.identifier || unit?.floorNo != null && unit?.floorNo != undefined; else noData;">
+                        {{ unit?.floorNo }}{{ unit?.identifier| uppercase }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="unit?.noOfBedrooms != null && unit?.noOfBedrooms != undefined; else noData;">
+                        {{ unit?.noOfBedrooms }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="unit?.noOfBathrooms != null && unit?.noOfBathrooms != undefined; else noData;">
+                        {{ unit?.noOfBathrooms }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="unit?.advanceInMonths != null && unit?.advanceInMonths != undefined; else noData;">
+                        {{ unit?.advanceInMonths }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="unit?.rentPerMonth != null && unit?.rentPerMonth != undefined; else noData;">
+                        {{ unit?.currency| titlecase }} {{ unit?.rentPerMonth }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="unit?.securityPerMonth; else noData;">
+                        {{ unit?.currency| titlecase }} {{ unit?.securityPerMonth }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="unit?.garbagePerMonth; else noData;">
+                        {{ unit?.currency| titlecase }} {{ unit?.garbagePerMonth }}
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngIf="unit?.status; else noData;">
+                        {{ unit?.status | uppercase }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <!-- edit -->
+                        <button *requiredRole="'UNIT_UPDATE'" type="button" class="btn btn-action btn-outline-info"
+                          (click)="openEdit(unit, updateForm, updateModal)">
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <!-- delete -->
+                        <button *requiredRole="'UNIT_DELETE'" type="button" class="btn btn-action btn-outline-danger"
+                          (click)="openDelete(unit, deleteModal)">
+                          <i class="bi bi-trash-fill"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+              </ng-container>
+            </tbody>
+          </table>
+          <ngb-pagination class="d-flex justify-content-center" [(page)]="page" [pageSize]="pageSize"
+            [collectionSize]="units.length"></ngb-pagination>
+        </div>
       </div>
     </div>
   </div>
@@ -151,9 +159,9 @@
 
 <ng-template #noApartments>
   <tr>
-    <td colspan="11">
+    <td colspan="14">
       <span style="font-style: italic; padding: 0.25rem 0.25rem; color: red;">
-        No apartments have been found.
+        No units have been found.
       </span>
     </td>
   </tr>
@@ -177,148 +185,464 @@
 </ng-template>
 
 <ng-template #createModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Unit create</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-  </div>
-  <div class="modal-body">
-    <form [formGroup]="createForm" (ngSubmit)="create(createForm)">
+  <form [formGroup]="createForm" (ngSubmit)="create(createForm, modal)">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Unit create</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="close(createForm, modal)"></button>
+    </div>
+    <div class="modal-body">
       <div class="row">
         <div class="mb-3 col-12">
-          <label for="apartmentId" class="form-label">Apartment</label>
-          <select id="apartmentId" class="form-select" formControlName="apartmentId" aria-label="choose apartment">
-            <option value="">-- Choose Apartment --</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
+          <label for="type" class="form-label">Unit Type</label>
+          <select id="type" class="form-select" formControlName="type" aria-label="choose unit type"
+            [class.is-invalid]="isTypeInvalid">
+            <option value="">-- Choose Type --</option>
+            <option value="APARTMENT_UNIT">APARTMENT UNIT</option>
+            <option value="TOWN_HOUSE">TOWN HOUSE</option>
+            <option value="MAISONETTES">MAISONETTE</option>
+            <option value="VILLA">VILLA</option>
           </select>
+          <!-- error -->
+          <ng-container *ngIf="isTypeInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isTypeInvalid">
+              Type is required.
+            </small>
+          </ng-container>
         </div>
-        <div class="mb-3 col-6">
-          <label for="type" class="form-label">Type</label>
-          <input formControlName="type" type="text" class="form-control" id="type" placeholder="Enter unit type">
+        <div class="mb-3 col-12" *ngIf="createForm.get('type')?.value == 'APARTMENT_UNIT'">
+          <label for="apartmentId" class="form-label">Apartment</label>
+          <select id="apartmentId" class="form-select" formControlName="apartmentId" aria-label="choose apartment"
+            [class.is-invalid]="isApartmentInvalid">
+            <option value="">-- Choose Apartment --</option>
+            <ng-container *ngFor="let apartment of apartments">
+              <option [value]="apartment.id">{{apartment.name| uppercase}}</option>
+            </ng-container>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isApartmentInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isApartmentInvalid">
+              Apartment is required.
+            </small>
+          </ng-container>
+        </div>
+        <div class="mb-3 col-6" *ngIf="createForm.get('type')?.value == 'APARTMENT_UNIT'">
+          <label for="floorNo" class="form-label">FloorNo</label>
+          <input formControlName="floorNo" type="text" class="form-control" id="floorNo" placeholder="Enter floorNo"
+            [class.is-invalid]="isFloorNoInvalid || isFloorNoPatternInvalid">
+          <!-- error -->
+          <ng-container *ngIf="isFloorNoInvalid || isFloorNoPatternInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isFloorNoInvalid">
+              Floor no. is required.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isFloorNoPatternInvalid">
+              Only numbers are allowed.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="identifier" class="form-label">Identifier</label>
-          <input formControlName="identifier" type="text" class="form-control" id="identifier" placeholder="Enter identifier">
-        </div>
-        <div class="mb-3 col-6">
-          <label for="floorNo" class="form-label">FloorNo</label>
-          <input formControlName="floorNo" type="text" class="form-control" id="floorNo" placeholder="Enter floorNo">
+          <select id="identifier" class="form-select" formControlName="identifier" aria-label="choose identifier"
+            [class.is-invalid]="isIdentifierInvalid">
+            <option value="">-- Choose Identifier --</option>
+            <ng-container *ngFor="let identifier of identifiers">
+              <option [value]="identifier">{{identifier | uppercase}}</option>
+            </ng-container>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isIdentifierInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isIdentifierInvalid">
+              Identifier is required.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="noOfBedrooms" class="form-label">Bedrooms</label>
-          <input formControlName="noOfBedrooms" type="text" class="form-control" id="noOfBedrooms" placeholder="Enter no of bedrooms">
+          <select id="noOfBedrooms" class="form-select" formControlName="noOfBedrooms" aria-label="choose bedrooms"
+            [class.is-invalid]="isBedroomsInvalid">
+            <option value="">-- Choose No. Of Bedrooms --</option>
+            <ng-container *ngFor="let bedroom of bedrooms">
+              <option [value]="bedroom">{{bedroom}}</option>
+            </ng-container>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isBedroomsInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isBedroomsInvalid">
+              No. of bedrooms is required.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="noOfBathrooms" class="form-label">Bathrooms</label>
-          <input formControlName="noOfBathrooms" type="text" class="form-control" id="noOfBathrooms" placeholder="Enter no of bathrooms">
+          <select id="noOfBathrooms" class="form-select" formControlName="noOfBathrooms" aria-label="choose bathrooms"
+            [class.is-invalid]="isBathroomsInvalid">
+            <option value="">-- Choose No. Of Bathrooms --</option>
+            <ng-container *ngFor="let bedroom of bedrooms">
+              <option [value]="bedroom">{{bedroom}}</option>
+            </ng-container>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isBathroomsInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isBathroomsInvalid">
+              No. of bedrooms is required.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="advanceInMonths" class="form-label">Advance in months</label>
-          <input formControlName="advanceInMonths" type="text" class="form-control" id="advanceInMonths" placeholder="Enter advance in months">
+          <select id="advanceInMonths" class="form-select" formControlName="advanceInMonths"
+            aria-label="choose bathrooms" [class.is-invalid]="isAdvanceInvalid">
+            <option value="">-- Advance In Months --</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isAdvanceInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isAdvanceInvalid">
+              Advance in months is required.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="currency" class="form-label">Currency</label>
-          <input formControlName="currency" type="text" class="form-control" id="currency" placeholder="Enter currency">
+          <select id="currency" class="form-select" formControlName="currency" aria-label="choose currency"
+            [class.is-invalid]="isCurrencyInvalid">
+            <option value="">-- Choose Currency --</option>
+            <option value="KES">KES</option>
+            <option value="POUND">POUNDS</option>
+            <option value="DOLLAR">DOLLARS</option>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isCurrencyInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isCurrencyInvalid">
+              Currency is required.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="rentPerMonth" class="form-label">Rent</label>
-          <input formControlName="rentPerMonth" type="text" class="form-control" id="rentPerMonth" placeholder="Enter rent per month">
+          <input formControlName="rentPerMonth" type="text" class="form-control" id="rentPerMonth"
+            placeholder="Enter rent per month"
+            [class.is-invalid]="isRentInvalid || isRentPatternInvalid || isRentMinLengthInvalid || isRentMaxLengthInvalid">
+          <!-- error -->
+          <ng-container
+            *ngIf="isRentInvalid || isRentPatternInvalid || isRentMinLengthInvalid || isRentMaxLengthInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isRentInvalid">
+              Rent is required.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isRentPatternInvalid">
+              Only numbers are allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isRentMinLengthInvalid">
+              Minimum length of 2 characters is allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isRentMaxLengthInvalid">
+              Maximum length of 50 characters is allowed.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="garbagePerMonth" class="form-label">Garbage</label>
-          <input formControlName="garbagePerMonth" type="text" class="form-control" id="garbagePerMonth" placeholder="Enter garbage per month">
+          <input formControlName="garbagePerMonth" type="text" class="form-control" id="garbagePerMonth"
+            placeholder="Enter garbage per month"
+            [class.is-invalid]="isGarbageInvalid || isGarbagePatternInvalid || isGarbageMinLengthInvalid || isGarbageMaxLengthInvalid">
+          <!-- error -->
+          <ng-container
+            *ngIf="isGarbageInvalid || isGarbagePatternInvalid || isGarbageMinLengthInvalid || isGarbageMaxLengthInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isGarbageInvalid">
+              Garbage is required.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isGarbagePatternInvalid">
+              Only numbers are allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isGarbageMinLengthInvalid">
+              Minimum length of 2 characters is allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isGarbageMaxLengthInvalid">
+              Maximum length of 50 characters is allowed.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="securityPerMonth" class="form-label">Security</label>
-          <input formControlName="securityPerMonth" type="text" class="form-control" id="securityPerMonth" placeholder="Enter security per month">
+          <input formControlName="securityPerMonth" type="text" class="form-control" id="securityPerMonth"
+            placeholder="Enter security per month"
+            [class.is-invalid]="isSecurityInvalid || isSecurityPatternInvalid || isSecurityMinLengthInvalid || isSecurityMaxLengthInvalid">
+          <!-- error -->
+          <ng-container
+            *ngIf="isSecurityInvalid || isSecurityPatternInvalid || isSecurityMinLengthInvalid || isSecurityMaxLengthInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isSecurityInvalid">
+              Security is required.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isSecurityPatternInvalid">
+              Only numbers are allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isSecurityMinLengthInvalid">
+              Minimum length of 52characters is allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isSecurityMaxLengthInvalid">
+              Maximum length of 50 characters is allowed.
+            </small>
+          </ng-container>
         </div>
       </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Create</button>
-  </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-outline-success" [disabled]="!createForm.valid || isSubmitting">
+        <span>Create</span>
+        <ng-container *ngIf="isSubmitting">
+          <span class="clearfix" style="margin-left: .75rem; width: 2rem; height: 2rem;">
+            <div class="spinner-border float-end" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </span>
+        </ng-container>
+      </button>
+    </div>
+  </form>
 </ng-template>
 
 <ng-template #updateModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Unit update</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-  </div>
-  <div class="modal-body">
-    <form [formGroup]="updateForm" (ngSubmit)="update(updateForm)">
+  <form [formGroup]="updateForm" (ngSubmit)="update(updateForm, modal)">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Unit update</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="close(updateForm, modal)"></button>
+    </div>
+    <div class="modal-body">
       <div class="row">
         <div class="mb-3 col-12">
-          <label for="id" class="form-label">Unit ID</label>
-          <input formControlName="id" type="text" class="form-control" id="id" placeholder="Enter unit id">
-        </div>
-        <div class="mb-3 col-12">
-          <label for="apartmentId" class="form-label">Apartment</label>
-          <select id="apartmentId" class="form-select" formControlName="apartmentId" aria-label="choose apartment">
-            <option value="">-- Choose Apartment --</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
+          <label for="type" class="form-label">Unit Type</label>
+          <select id="type" class="form-select" formControlName="type" aria-label="choose unit type"
+            [class.is-invalid]="isUpdateTypeInvalid">
+            <option value="">-- Choose Type --</option>
+            <option value="APARTMENT_UNIT">APARTMENT UNIT</option>
+            <option value="TOWN_HOUSE">TOWN HOUSE</option>
+            <option value="MAISONETTES">MAISONETTE</option>
+            <option value="VILLA">VILLA</option>
           </select>
+          <!-- error -->
+          <ng-container *ngIf="isUpdateTypeInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isUpdateTypeInvalid">
+              Type is required.
+            </small>
+          </ng-container>
         </div>
-        <div class="mb-3 col-6">
-          <label for="type" class="form-label">Type</label>
-          <input formControlName="type" type="text" class="form-control" id="type" placeholder="Enter unit type">
+        <div class="mb-3 col-12" *ngIf="updateForm.get('type')?.value == 'APARTMENT_UNIT'">
+          <label for="apartmentId" class="form-label">Apartment</label>
+          <select id="apartmentId" class="form-select" formControlName="apartmentId" aria-label="choose apartment"
+            [class.is-invalid]="isUpdateApartmentInvalid">
+            <option value="">-- Choose Apartment --</option>
+            <ng-container *ngFor="let apartment of apartments">
+              <option [value]="apartment.id">{{apartment.name| uppercase}}</option>
+            </ng-container>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isUpdateApartmentInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isUpdateApartmentInvalid">
+              Apartment is required.
+            </small>
+          </ng-container>
+        </div>
+        <div class="mb-3 col-6" *ngIf="updateForm.get('type')?.value == 'APARTMENT_UNIT'">
+          <label for="floorNo" class="form-label">FloorNo</label>
+          <input formControlName="floorNo" type="text" class="form-control" id="floorNo" placeholder="Enter floorNo"
+            [class.is-invalid]="isUpdateFloorNoInvalid || isUpdateFloorNoPatternInvalid">
+          <!-- error -->
+          <ng-container *ngIf="isUpdateFloorNoInvalid || isUpdateFloorNoPatternInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isUpdateFloorNoInvalid">
+              Floor no. is required.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isUpdateFloorNoPatternInvalid">
+              Only numbers are allowed.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="identifier" class="form-label">Identifier</label>
-          <input formControlName="identifier" type="text" class="form-control" id="identifier" placeholder="Enter identifier">
-        </div>
-        <div class="mb-3 col-6">
-          <label for="floorNo" class="form-label">FloorNo</label>
-          <input formControlName="floorNo" type="text" class="form-control" id="floorNo" placeholder="Enter floorNo">
+          <select id="identifier" class="form-select" formControlName="identifier" aria-label="choose identifier"
+            [class.is-invalid]="isUpdateIdentifierInvalid">
+            <option value="">-- Choose Identifier --</option>
+            <ng-container *ngFor="let identifier of identifiers">
+              <option [value]="identifier">{{identifier | uppercase}}</option>
+            </ng-container>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isUpdateIdentifierInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isUpdateIdentifierInvalid">
+              Identifier is required.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="noOfBedrooms" class="form-label">Bedrooms</label>
-          <input formControlName="noOfBedrooms" type="text" class="form-control" id="noOfBedrooms" placeholder="Enter no of bedrooms">
+          <select id="noOfBedrooms" class="form-select" formControlName="noOfBedrooms" aria-label="choose bedrooms"
+            [class.is-invalid]="isUpdateBedroomsInvalid">
+            <option value="">-- Choose No. Of Bedrooms --</option>
+            <ng-container *ngFor="let bedroom of bedrooms">
+              <option [value]="bedroom">{{bedroom}}</option>
+            </ng-container>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isUpdateBedroomsInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isUpdateBedroomsInvalid">
+              No. of bedrooms is required.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="noOfBathrooms" class="form-label">Bathrooms</label>
-          <input formControlName="noOfBathrooms" type="text" class="form-control" id="noOfBathrooms" placeholder="Enter no of bathrooms">
+          <select id="noOfBathrooms" class="form-select" formControlName="noOfBathrooms" aria-label="choose bathrooms"
+            [class.is-invalid]="isUpdateBathroomsInvalid">
+            <option value="">-- Choose No. Of Bathrooms --</option>
+            <ng-container *ngFor="let bedroom of bedrooms">
+              <option [value]="bedroom">{{bedroom}}</option>
+            </ng-container>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isUpdateBathroomsInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isUpdateBathroomsInvalid">
+              No. of bedrooms is required.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="advanceInMonths" class="form-label">Advance in months</label>
-          <input formControlName="advanceInMonths" type="text" class="form-control" id="advanceInMonths" placeholder="Enter advance in months">
+          <select id="advanceInMonths" class="form-select" formControlName="advanceInMonths"
+            aria-label="choose bathrooms" [class.is-invalid]="isUpdateAdvanceInvalid">
+            <option value="">-- Advance In Months --</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isUpdateAdvanceInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isUpdateAdvanceInvalid">
+              Advance in months is required.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="currency" class="form-label">Currency</label>
-          <input formControlName="currency" type="text" class="form-control" id="currency" placeholder="Enter currency">
+          <select id="currency" class="form-select" formControlName="currency" aria-label="choose currency"
+            [class.is-invalid]="isUpdateCurrencyInvalid">
+            <option value="">-- Choose Currency --</option>
+            <option value="KES">KES</option>
+            <option value="POUND">POUNDS</option>
+            <option value="DOLLAR">DOLLARS</option>
+          </select>
+          <!-- error -->
+          <ng-container *ngIf="isUpdateCurrencyInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isUpdateCurrencyInvalid">
+              Currency is required.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="rentPerMonth" class="form-label">Rent</label>
-          <input formControlName="rentPerMonth" type="text" class="form-control" id="rentPerMonth" placeholder="Enter rent per month">
+          <input formControlName="rentPerMonth" type="text" class="form-control" id="rentPerMonth"
+            placeholder="Enter rent per month"
+            [class.is-invalid]="isUpdateRentInvalid || isUpdateRentPatternInvalid || isUpdateRentMinLengthInvalid || isUpdateRentMaxLengthInvalid">
+          <!-- error -->
+          <ng-container
+            *ngIf="isUpdateRentInvalid || isUpdateRentPatternInvalid || isUpdateRentMinLengthInvalid || isUpdateRentMaxLengthInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isUpdateRentInvalid">
+              Rent is required.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isUpdateRentPatternInvalid">
+              Only numbers are allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isUpdateRentMinLengthInvalid">
+              Minimum length of 2 characters is allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isUpdateRentMaxLengthInvalid">
+              Maximum length of 50 characters is allowed.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="garbagePerMonth" class="form-label">Garbage</label>
-          <input formControlName="garbagePerMonth" type="text" class="form-control" id="garbagePerMonth" placeholder="Enter garbage per month">
+          <input formControlName="garbagePerMonth" type="text" class="form-control" id="garbagePerMonth"
+            placeholder="Enter garbage per month"
+            [class.is-invalid]="isUpdateGarbageInvalid || isUpdateGarbagePatternInvalid || isUpdateGarbageMinLengthInvalid || isUpdateGarbageMaxLengthInvalid">
+          <!-- error -->
+          <ng-container
+            *ngIf="isUpdateGarbageInvalid || isUpdateGarbagePatternInvalid || isUpdateGarbageMinLengthInvalid || isUpdateGarbageMaxLengthInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isUpdateGarbageInvalid">
+              Garbage is required.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isUpdateGarbagePatternInvalid">
+              Only numbers are allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isUpdateGarbageMinLengthInvalid">
+              Minimum length of 2 characters is allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isUpdateGarbageMaxLengthInvalid">
+              Maximum length of 50 characters is allowed.
+            </small>
+          </ng-container>
         </div>
         <div class="mb-3 col-6">
           <label for="securityPerMonth" class="form-label">Security</label>
-          <input formControlName="securityPerMonth" type="text" class="form-control" id="securityPerMonth" placeholder="Enter security per month">
+          <input formControlName="securityPerMonth" type="text" class="form-control" id="securityPerMonth"
+            placeholder="Enter security per month"
+            [class.is-invalid]="isUpdateSecurityInvalid || isUpdateSecurityPatternInvalid || isUpdateSecurityMinLengthInvalid || isUpdateSecurityMaxLengthInvalid">
+          <!-- error -->
+          <ng-container
+            *ngIf="isUpdateSecurityInvalid || isUpdateSecurityPatternInvalid || isUpdateSecurityMinLengthInvalid || isUpdateSecurityMaxLengthInvalid">
+            <small class="form-text text-danger float-left" *ngIf="isUpdateSecurityInvalid">
+              Security is required.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isUpdateSecurityPatternInvalid">
+              Only numbers are allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isUpdateSecurityMinLengthInvalid">
+              Minimum length of 52characters is allowed.
+            </small>
+            <small class="form-text text-danger float-left" *ngIf="isUpdateSecurityMaxLengthInvalid">
+              Maximum length of 50 characters is allowed.
+            </small>
+          </ng-container>
         </div>
       </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
-  </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-outline-success">
+        <span>Update</span>
+        <ng-container *ngIf="isSubmitting">
+          <span class="clearfix" style="margin-left: .75rem; width: 2rem; height: 2rem;">
+            <div class="spinner-border float-end" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </span>
+        </ng-container>
+      </button>
+    </div>
+  </form>
 </ng-template>
 
 <ng-template #deleteModal let-modal>
   <div class="modal-header">
     <h4 class="modal-title" id="modal-basic-title">User delete</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    <button type="button" class="btn-close" aria-label="Close" (click)="closeDelete(unit, modal)"></button>
   </div>
   <div class="modal-body">
-    Are you sure you want to delete {{deleteUnit}}?
+    <ng-container *ngIf="unit.type != 'APARTMENT_UNIT'">
+      Are you sure you want to delete {{unit.type?.split('_')?.join(' ') | uppercase }} of account no.
+      {{unit.accountNo}}?
+    </ng-container>
+    <ng-container *ngIf="unit.type == 'APARTMENT_UNIT'">
+      Are you sure you want to delete {{unit.type.split('_').join(' ') | uppercase }} of account no. {{unit.accountNo}}
+      from apartment {{findApartmentName(unit.apartmentId)}}?
+    </ng-container>
+
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
+    <button type="button" class="btn btn-outline-danger" (click)="delete(unit, modal)">Delete</button>
   </div>
 </ng-template>

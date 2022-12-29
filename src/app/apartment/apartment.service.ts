@@ -28,7 +28,7 @@ export class ApartmentService {
     return this._http.post<ResponseDto<Apartment>>(`${this.url}/v1/apartments`, apartment);
   }
 
-  public find(name: string, order: Order): Observable<ResponseDto<Array<Apartment>>> {
+  public find(name?: string, order?: Order): Observable<ResponseDto<Array<Apartment>>> {
 
     const parameters = new HttpParams()
       .set('name', name ? name : '')

@@ -5,7 +5,6 @@ import { ApartmentRoutingModule } from './apartment-routing.module';
 import { ApartmentListComponent } from './apartment-list/apartment-list.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
-// import { NgxPaginationModule } from 'ngx-pagination';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 
 
@@ -18,7 +17,6 @@ import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
     CommonModule,
     SharedModule,
     NgbPaginationModule,
-    // NgxPaginationModule,
     ReactiveFormsModule,
     ApartmentRoutingModule,
   ]
