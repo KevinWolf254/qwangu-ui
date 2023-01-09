@@ -9,7 +9,7 @@
     <!-- list -->
     <div class="card">
       <div class="card-body">
-        <form autocomplete="off" [formGroup]="form">
+        <form autocomplete="off" [formGroup]="searchForm">
           <div class="d-flex justify-content-between">
             <!-- page size -->
             <div class="row flex-fill mb-3">
@@ -25,19 +25,20 @@
             </div>
             <!-- search -->
             <div class="row flex-fill mb-3">
-              <label for="search" class="col-xl-2 col-form-label">Search</label>
-              <div id="search" class="col-xl-10">
-                  <div class="row g-2">
-                    <div class="col-4">
-                      <input formControlName="tenant" type="text" class="form-control"  aria-label="tenant" placeholder="Enter tenant email">
-                    </div>
-                    <div class="col-4">
-                      <input formControlName="unit"  type="text" class="form-control"  aria-label="unit identifier" placeholder="Enter unit identifier">
-                    </div>
-                    <div class="col-4">
-                      <input formControlName="status"  type="text" class="form-control"  aria-label="status" placeholder="Enter status">
-                    </div>
-                  </div>
+              <label for="search" class="col-sm-3 col-md-2 col-form-label">Search</label>
+              <div class="col-sm-9 col-md-10">
+                <div class="input-group">
+                  <select class="form-select form-select-sm" formControlName="status" aria-label="statuses"
+                    aria-describedby="status">
+                    <option value="">--- Choose Status ---</option>
+                    <option value="PENDING_OCCUPATION">PENDING OCCUPATION</option>
+                    <option value="CURRENT">CURRENT</option>
+                    <option value="PENDING_VACATING">PENDING VACATING</option>
+                    <option value="VACATED">VACATED</option>
+                  </select>
+                  <input formControlName="occupationNo" class="form-control" type="text"
+                    placeholder="Enter occupation number" aria-label="occupationNo">
+                </div>
               </div>
             </div>
           </div>
@@ -60,8 +61,8 @@
               <tbody>
                 <ng-container *ngIf="!isLoading else loading;">
                   <ng-container *ngIf="occupations.length > 0 else noUsers;">
-                    <!-- <tr *ngFor="let user of users | paginate: { itemsPerPage: PAGE_SIZE, currentPage: PAGE } let i = index;"> -->
-                    <tr *ngFor="let occupation of occupations; let i = index;">
+                    <tr
+                      *ngFor=" let i = index; let occupation of occupations | slice: (page-1) * pageSize : page * pageSize">
                       <td>{{ i + 1 }}.</td>
                       <td>
                         <span *ngIf="occupation?.tenantId; else noData;">
@@ -79,13 +80,13 @@
                         </span>
                       </td>
                       <td>
-                        <span *ngIf="occupation?.startedOn; else noData;">
-                          {{ occupation?.startedOn | date:'mediumDate' }}
+                        <span *ngIf="occupation?.startDate; else noData;">
+                          {{ occupation?.startDate | date:'mediumDate' }}
                         </span>
                       </td>
                       <td>
-                        <span *ngIf="occupation?.endedOn; else noData;">
-                          {{ occupation?.endedOn | date:'mediumDate' }}
+                        <span *ngIf="occupation?.endDate; else noData;">
+                          {{ occupation?.endDate | date:'mediumDate' }}
                         </span>
                       </td>
                       <td>
@@ -101,11 +102,13 @@
                       <td>
                         <div class="d-flex align-items-center justify-content-between">
                           <!-- edit -->
-                          <button type="button" class="btn btn-action btn-outline-info" (click)="openEdit(occupation.id, updateModal)">
+                          <button type="button" class="btn btn-action btn-outline-info"
+                            (click)="openEdit(occupation.id, null)">
                             <i class="bi bi-pencil-square"></i>
                           </button>
                           <!-- delete -->
-                          <button type="button" class="btn btn-action btn-outline-danger" (click)="openDelete(occupation.id, deleteModal)">
+                          <button type="button" class="btn btn-action btn-outline-danger"
+                            (click)="openDelete(occupation.id, null)">
                             <i class="bi bi-trash-fill"></i>
                           </button>
                         </div>
@@ -115,6 +118,8 @@
                 </ng-container>
               </tbody>
             </table>
+            <ngb-pagination class="d-flex justify-content-center" [(page)]="page" [pageSize]="pageSize"
+              [collectionSize]="occupations.length"></ngb-pagination>
           </div>
         </form>
       </div>
@@ -130,7 +135,7 @@
   <tr>
     <td colspan="11">
       <span style="font-style: italic; padding: 0.25rem 0.25rem; color: red;">
-        No users have been found.
+        No occupations have been found.
       </span>
     </td>
   </tr>
@@ -153,21 +158,44 @@
   </tr>
 </ng-template>
 
+<ng-template #rt let-r="result" let-t="term">
+  <ngb-highlight [result]="r.firstName + ' ' + r.surname + '  |  ' +  r.mobileNumber + ' | ' +r.emailAddress"
+    [term]="t"></ngb-highlight>
+</ng-template>
+
+<ng-template #paymentTemplate let-r="result" let-t="term">
+  <ngb-highlight [result]="r.transactionId + '  |  ' +  r.mobileNumber + ' | ' +r.currency+ ' ' + r.amount"
+    [term]="t"></ngb-highlight>
+</ng-template>
+
 <ng-template #createModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Occupation create</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-  </div>
-  <div class="modal-body">
-    <form [formGroup]="createForm" (ngSubmit)="create(createForm)">
+  <form [formGroup]="createForm" (ngSubmit)="create(createForm, modal)">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Occupation create</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="close(createForm, modal)"></button>
+    </div>
+    <div class="modal-body">
       <div class="row">
-        <div class="col-6 mb-2">
-          <label for="emailAddress" class="form-label">Email Address</label>
-          <input formControlName="emailAddress" type="text" class="form-control" id="emailAddress" placeholder="Enter email address">
+        <div class=" col-sm-12 d-flex justify-content-center my-4">
+          <div class="form-check form-check-inline">
+            <input formControlName="tenantType" class="form-check-input" type="radio" name="tenantType" id="newTenant"
+              value="0">
+            <label class="form-check-label" for="newTenant">New Tenant</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input formControlName="tenantType" class="form-check-input" type="radio" name="tenantType"
+              id="existingTenant" value="1">
+            <label class="form-check-label" for="existingTenant">Existing Tenant</label>
+          </div>
         </div>
-        <div class="col-6 mb-2">
-          <label for="mobileNo" class="form-label">Mobile No.</label>
-          <input formControlName="mobileNumber" type="text" class="form-control" id="mobileNo" placeholder="Enter mobile number">
+        <div *ngIf="createForm.get('tenantType')?.value == '1'" class="col-12 mb-2">
+          <label for="tenant" class="form-label">Search tenant</label>
+          <input formControlName="tenant" type="text" class="form-control" id="tenant" placeholder="Enter mobile number"
+            [ngbTypeahead]="search" [inputFormatter]="formatter" [resultTemplate]="rt" (selectItem)="selected($event, createForm)">
+        </div>
+        <div class="col-12 mb-2">
+          <label for="surname" class="form-label">Surname</label>
+          <input formControlName="surname" type="text" class="form-control" id="surname" placeholder="Enter surname">
         </div>
         <div class="col-6 mb-2">
           <label for="fname" class="form-label">First Name</label>
@@ -175,138 +203,70 @@
         </div>
         <div class="col-6 mb-2">
           <label for="middleName" class="form-label">Middle Names</label>
-          <input formControlName="middleName" type="text" class="form-control" id="middleName" placeholder="Enter middle names">
+          <input formControlName="middleName" type="text" class="form-control" id="middleName"
+            placeholder="Enter middle names">
         </div>
-        <div class="col-12 mb-2">
-          <label for="surname" class="form-label">Surname</label>
-          <input formControlName="surname" type="text" class="form-control" id="surname" placeholder="Enter surname">
+        <div class="col-6 mb-2">
+          <label for="mobileNo" class="form-label">Mobile No.</label>
+          <input formControlName="mobileNumber" type="text" class="form-control" id="mobileNo"
+            placeholder="Enter mobile number">
+        </div>
+        <div class="col-6 mb-2">
+          <label for="emailAddress" class="form-label">Email Address</label>
+          <input formControlName="emailAddress" type="text" class="form-control" id="emailAddress"
+            placeholder="Enter email address">
         </div>
       </div>
       <div class="mb-2">
-        <label for="apartment" class="form-label">Apartment</label>
-        <select id="apartment" class="form-select" formControlName="apartmentId" aria-label="choose apartment">
-          <option value="">-- Choose Apartment --</option>
-          <option value="1">One</option>
-          <option value="2">Two</option>
-          <option value="3">Three</option>
+        <label for="apartmentId" class="form-label">Apartment</label>
+        <select id="apartment" class="form-select form-select-sm" formControlName="apartmentId"
+          aria-label="choose apartment" aria-describedby="apartmentIcon">
+          <option value="">--- Choose Apartment ---</option>
+          <ng-container *ngFor="let apartment of apartments">
+            <option [value]="apartment.id">{{apartment.name| uppercase}}</option>
+          </ng-container>
         </select>
       </div>
       <div class="mb-2">
         <label for="unit" class="form-label">Unit</label>
-        <select id="unit" class="form-select" formControlName="unitId" aria-label="choose unit">
-          <option value="">-- Choose Unit --</option>
-          <option value="1">One</option>
-          <option value="2">Two</option>
-          <option value="3">Three</option>
+        <select id="unit" class="form-select form-select-sm" formControlName="unitId" aria-label="choose unit"
+          aria-describedby="apartmentIcon">
+          <option value="">--- Choose Unit ---</option>
+          <ng-container *ngFor="let unit of units">
+            <option [value]="unit.id">{{unit.floorNo}}{{unit.identifier}} | {{unit.noOfBedrooms}} Bedrooms |
+              {{unit.currency}} {{unit.rentPerMonth | number}} per Month</option>
+          </ng-container>
         </select>
       </div>
-      <div class="mb-2">
-        <label for="rentAdvance" class="form-label">Rent Advance</label>
-        <select id="rentAdvance" class="form-select" formControlName="rentAdvanceId" aria-label="choose rentAdvance">
-          <option value="">-- Choose Rent Advance --</option>
-          <option value="1">One</option>
-          <option value="2">Two</option>
-          <option value="3">Three</option>
-        </select>
+      <div class="col-12 mb-2">
+        <label for="payment" class="form-label">Search payment</label>
+        <input formControlName="payment" type="text" class="form-control" id="payment"
+          placeholder="Enter transaction id" [ngbTypeahead]="searchPayment" [inputFormatter]="paymentFormatter"
+          [resultTemplate]="paymentTemplate" (selectItem)="selectedPayment($event, createForm)">
       </div>
-      <div class="mb-2">
-        <label for="status" class="form-label">Status</label>
-        <select id="status" class="form-select" formControlName="status" aria-label="choose status">
-          <option value="">-- Choose Status --</option>
-          <option value="BOOKED">BOOKED</option>
-          <option value="CURRENT">CURRENT</option>
-          <option value="PREVIOUS">PREVIOUS</option>
-        </select>
-      </div>
-      <div class="col-12">
+      <div class="col-12 mb-2">
         <label for="startDate" class="form-label">Start Date</label>
-        <input formControlName="startedOn" type="text" class="form-control" id="startDate" placeholder="Enter start date">
+        <div class="input-group">
+          <input id="startDate" formControlName="startedOn" [minDate]="minDate" class="form-control" placeholder="Select start date" name="dp" ngbDatepicker
+            #d="ngbDatepicker" />
+          <button class="btn btn-action btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button" style="border-radius: .1rem !important;
+            border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important;
+            border-top-right-radius: .25rem !important; border-bottom-right-radius: .25rem !important;"></button>
+        </div>
       </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Create</button>
-  </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-outline-success" [disabled]="isSubmitting">
+        <span>Create</span>
+        <ng-container *ngIf="isSubmitting">
+          <span class="clearfix" style="margin-left: .75rem; width: 2rem; height: 2rem;">
+            <div class="spinner-border float-end" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </span>
+        </ng-container>
+      </button>
+    </div>
+  </form>
 </ng-template>
 
-<ng-template #updateModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Occupation update</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-  </div>
-  <div class="modal-body">
-    <form [formGroup]="updateForm" (ngSubmit)="update(updateForm)">
-      <div class="mb-2">
-        <label for="occupationId" class="form-label">Occupation ID</label>
-        <input formControlName="occupationId" type="text" class="form-control" id="occupationId" placeholder="Enter occupation id">
-      </div>
-      <div class="mb-2">
-        <label for="tenant" class="form-label">Tenant</label>
-        <select id="tenant" class="form-select" formControlName="tenantId" aria-label="choose unit">
-          <option value="">-- Choose tenant --</option>
-          <option value="1">John Doe Smith</option>
-        </select>
-      </div>
-      <div class="mb-2">
-        <label for="apartment" class="form-label">Apartment</label>
-        <select id="apartment" class="form-select" formControlName="apartmentId" aria-label="choose apartment">
-          <option value="">-- Choose Apartment --</option>
-          <option value="1">One</option>
-          <option value="2">Two</option>
-          <option value="3">Three</option>
-        </select>
-      </div>
-      <div class="mb-2">
-        <label for="unit" class="form-label">Unit</label>
-        <select id="unit" class="form-select" formControlName="unitId" aria-label="choose unit">
-          <option value="">-- Choose Unit --</option>
-          <option value="1">One</option>
-          <option value="2">Two</option>
-          <option value="3">Three</option>
-        </select>
-      </div>
-      <div class="mb-2">
-        <label for="status" class="form-label">Status</label>
-        <select id="status" class="form-select" formControlName="status" aria-label="choose status">
-          <option value="">-- Choose Status --</option>
-          <option value="BOOKED">BOOKED</option>
-          <option value="CURRENT">CURRENT</option>
-          <option value="PREVIOUS">PREVIOUS</option>
-        </select>
-      </div>
-      <div class="mb-2">
-        <label for="rentAdvance" class="form-label">Rent Advance</label>
-        <select id="rentAdvance" class="form-select" formControlName="rentAdvanceId" aria-label="choose rentAdvance">
-          <option value="">-- Choose Rent Advance --</option>
-          <option value="1">One</option>
-          <option value="2">Two</option>
-          <option value="3">Three</option>
-        </select>
-      </div>
-      <div class="col-12">
-        <label for="startDate" class="form-label">Start Date</label>
-        <input formControlName="startedOn" type="text" class="form-control" id="startDate" placeholder="Enter start date">
-      </div>
-      <div class="col-12">
-        <label for="endDate" class="form-label">End Date</label>
-        <input formControlName="endedOn" type="text" class="form-control" id="endDate" placeholder="Enter end date">
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-success" (click)="modal.close('Save click')">Update</button>
-  </div>
-</ng-template>
-
-<ng-template #deleteModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Occupation delete</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-  </div>
-  <div class="modal-body">
-    Are you sure you want to delete {{deleteUserName}}?
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-danger" (click)="modal.close('Save click')">Delete</button>
-  </div>
-</ng-template>

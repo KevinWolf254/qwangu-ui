@@ -83,7 +83,7 @@ export class UnitListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.find('', '', Order.DESC);
+    this.find();
     this.isLoadingApartments = true;
     this._apartmentService.find()
       .subscribe({
@@ -199,7 +199,7 @@ export class UnitListComponent implements OnInit {
       currency, rentPerMonth, garbagePerMonth, securityPerMonth } = form.value;
 
     // TODO ADD OTHER AMOUNTS
-    let unit = new Unit(undefined, UnitStatus.VACANT, false, undefined, type,
+    let unit = new Unit(undefined, UnitStatus.VACANT, undefined, type,
       identifier, floorNo, noOfBedrooms, noOfBathrooms, advanceInMonths, currency,
       rentPerMonth, garbagePerMonth, securityPerMonth, undefined, apartmentId);
 
@@ -224,7 +224,7 @@ export class UnitListComponent implements OnInit {
       currency, rentPerMonth, garbagePerMonth, securityPerMonth } = form.getRawValue();
 
     // TODO ADD OTHER AMOUNTS
-    let unit = new Unit(undefined, UnitStatus.VACANT, false, undefined, type,
+    let unit = new Unit(undefined, UnitStatus.VACANT, undefined, type,
       identifier, floorNo, noOfBedrooms, noOfBathrooms, advanceInMonths, currency,
       rentPerMonth, garbagePerMonth, securityPerMonth, undefined, apartmentId);
 

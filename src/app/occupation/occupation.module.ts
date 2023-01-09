@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { OccupationRoutingModule } from './occupation-routing.module';
 import { OccupationListComponent } from './occupation-list/occupation-list.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgbDatepickerModule, NgbPaginationModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -12,9 +13,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
   ],
   imports: [
     CommonModule,
-    OccupationRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    NgbTypeaheadModule,
+    NgbPaginationModule,
+    NgbDatepickerModule,
+    ReactiveFormsModule,
+    OccupationRoutingModule,
   ]
 })
 export class OccupationModule { }

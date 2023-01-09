@@ -1,3 +1,5 @@
+import { Currency } from "src/app/unit/model/unit.model";
+
 export class Payment {
   constructor(
     public id: string,
@@ -6,6 +8,7 @@ export class Payment {
     public transactionId: string,
     public transactionType: string,
     public transactionTime: Date,
+    public currency: Currency,
     public amount: number,
     public shortCode: string,
     public referenceNo: string,

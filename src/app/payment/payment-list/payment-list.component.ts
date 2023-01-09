@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Currency } from 'src/app/unit/model/unit.model';
 import { Payment, PaymentStatus, PaymentType } from '../model/payment.model';
 
 @Component({
@@ -54,7 +55,7 @@ export class PaymentListComponent implements OnInit {
     this.deleteNotice = 'WERD12R5667';
     this.isLoading = false;
     let today: Date = new Date;
-    let payment = new Payment("1", PaymentStatus.PROCESSED, PaymentType.MPESA_TILL, 'WEDRF2ER34', 'MPESA', today, 25000, '233456', 'WEDRF2ER34', 'WEDRF2ER34', '5000', '', '0720000000', 'JOHN', '', 'DOE', today, '', today, '');
+    let payment = new Payment("1", PaymentStatus.PROCESSED, PaymentType.MPESA_TILL, 'WEDRF2ER34', 'MPESA', today, Currency.KES, 25000, '233456', 'WEDRF2ER34', 'WEDRF2ER34', '5000', '', '0720000000', 'JOHN', '', 'DOE', today, '', today, '');
     this.payments = [payment];
    }
 

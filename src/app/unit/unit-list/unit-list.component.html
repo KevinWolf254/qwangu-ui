@@ -80,8 +80,8 @@
                       </span>
                     </td>
                     <td>
-                      <span *ngIf="unit?.accountNo; else noData;">
-                        {{ unit?.accountNo | uppercase }}
+                      <span *ngIf="unit?.number; else noData;">
+                        {{ unit?.number | uppercase }}
                       </span>
                     </td>
                     <td>
@@ -102,22 +102,22 @@
                     </td>
                     <td>
                       <span *ngIf="unit?.advanceInMonths != null && unit?.advanceInMonths != undefined; else noData;">
-                        {{ unit?.advanceInMonths }}
+                        {{ unit?.advanceInMonths }} Months
                       </span>
                     </td>
                     <td>
                       <span *ngIf="unit?.rentPerMonth != null && unit?.rentPerMonth != undefined; else noData;">
-                        {{ unit?.currency| titlecase }} {{ unit?.rentPerMonth }}
+                        {{ unit?.currency | uppercase }} {{ unit?.rentPerMonth }}
                       </span>
                     </td>
                     <td>
                       <span *ngIf="unit?.securityPerMonth; else noData;">
-                        {{ unit?.currency| titlecase }} {{ unit?.securityPerMonth }}
+                        {{ unit?.currency| uppercase }} {{ unit?.securityPerMonth }}
                       </span>
                     </td>
                     <td>
                       <span *ngIf="unit?.garbagePerMonth; else noData;">
-                        {{ unit?.currency| titlecase }} {{ unit?.garbagePerMonth }}
+                        {{ unit?.currency| uppercase }} {{ unit?.garbagePerMonth }}
                       </span>
                     </td>
                     <td>
@@ -634,10 +634,10 @@
   <div class="modal-body">
     <ng-container *ngIf="unit.type != 'APARTMENT_UNIT'">
       Are you sure you want to delete {{unit.type?.split('_')?.join(' ') | uppercase }} of account no.
-      {{unit.accountNo}}?
+      {{unit.number}}?
     </ng-container>
     <ng-container *ngIf="unit.type == 'APARTMENT_UNIT'">
-      Are you sure you want to delete {{unit.type.split('_').join(' ') | uppercase }} of account no. {{unit.accountNo}}
+      Are you sure you want to delete {{unit.type.split('_').join(' ') | uppercase }} of account no. {{unit.number}}
       from apartment {{findApartmentName(unit.apartmentId)}}?
     </ng-container>
 
