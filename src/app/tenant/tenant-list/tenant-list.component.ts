@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -14,14 +14,15 @@ import { UtilService } from 'src/app/shared/services/util.service';
 @Component({
   selector: 'app-tenant-list',
   templateUrl: './tenant-list.component.html',
-  styleUrls: ['./tenant-list.component.scss']
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['./tenant-list.component.scss'],
 })
 export class TenantListComponent implements OnInit {
   public page: number = 1;
   public pageSize: number = 10;
   public isSubmitting: boolean;
   public isLoading: boolean;
-  public tenants: Tenant[];
+  public getTenants$ = this._tenantService.getTenants$;
   private closeResult = '';
 
   public searchForm: FormGroup;
@@ -52,40 +53,22 @@ export class TenantListComponent implements OnInit {
     });
     this.tenant = new Tenant();
     this.isLoading = false;
-    this.tenants = [];
     this.isSubmitting = false;
    }
 
   ngOnInit(): void {
-    this.find('', '', Order.DESC);
     (this.searchForm.get("pageSize") as AbstractControl).valueChanges.subscribe((value: number) => {
       this.pageSize = value;
     });
     (this.searchForm.get("email") as AbstractControl).valueChanges.pipe(
       debounceTime(1000)
     ).subscribe((value: string) => {
-      if (value)
-      this.find('', value, Order.DESC);
-      else
-        this.find();
+      if (value) {
+        this._tenantService.changeEmailAddress(value);
+      } else {
+        this._tenantService.changeEmailAddress('');
+      }
     });
-  }
-
-  private find(mobileNumber?: string, emailAddress?: string, order?: Order) {
-    this.tenants = [];
-    this.isLoading = true;
-    this._tenantService.find(mobileNumber, emailAddress,  order)
-      .subscribe({
-        next: (response: ResponseDto<Array<Tenant>>) => {
-          this.tenants = response.data;
-        },
-        error: () => {
-          this.isLoading = false;
-        },
-        complete: () => {
-          this.isLoading = false;
-        }
-      });
   }
 
   public findPosition(index: number, page: number, pageSize: number): number {
@@ -137,7 +120,7 @@ export class TenantListComponent implements OnInit {
     this.isSubmitting = true;
     this._tenantService.create(tenant).subscribe({
       next: () => {
-        this.find('', '', Order.DESC);
+        this.searchForm.get('email')?.setValue('');
         this.isSubmitting = false;
         this.close(form, modal);
       },
@@ -159,7 +142,9 @@ export class TenantListComponent implements OnInit {
     this.isSubmitting = true;
     this._tenantService.update(id, tenant).subscribe({
       next: () => {
-        this.find('', '', Order.DESC);
+        // this.find('', '', Order.DESC);
+        this._tenantService.changeEmailAddress('');
+        this._tenantService.changeMobileNumber('');
         this.isSubmitting = false;
         this.tenant = new Tenant();
         this.close(form, modal);
@@ -179,7 +164,9 @@ export class TenantListComponent implements OnInit {
 
     this._tenantService.delete(id as string).subscribe({
       next: () => {
-        this.find('', '', Order.DESC)
+        // this.find('', '', Order.DESC)
+        this._tenantService.changeEmailAddress('');
+        this._tenantService.changeMobileNumber('');
         this.isSubmitting = false;
         this.closeDelete(tenant, modal);
       },
